@@ -3,15 +3,14 @@ import numpy as np
 from os import listdir
 
 
-def check_existing_datasets(win_size, datasets_path) -> bool:
+def check_existing_datasets(dataset_name, datasets_path) -> bool:
     """This function check does the dataset exist.
     If True new dataset won't be created"""
     
     datasets = listdir(datasets_path)
-    new_dataset = f"data_win{win_size}.csv"
-    if new_dataset in datasets:
-        return True
-    return False
+    if dataset_name in datasets:
+        return False
+    return True
 
 
 def add_noise(img, win_size)-> np.array:

@@ -1,32 +1,39 @@
 import pandas as pd
 import numpy as np
-import os
-from PIL import Image
-from PIL import ImageOps
+from os import listdir
+from PIL import Image, ImageOps
 from tqdm import tqdm
 from img_preparation import *
 
 # Define constants
 datasets_path = r"..\datasets\csv_files"
 img_path = r"..\datasets\images"
-img_list = os.listdir(img_path)
 
-def generate_csv(*, win_size, dump_to_file):
+
+def generate_csv(*, win_size, dump_to_file,
+                 img_path=img_path,
+                 datasets_path=datasets_path,
+                 dataset_name=None):
     """
     This function create dataset using certan
     window on images with borders.
     """
+
     assert (win_size % 2) == 1, "win_size must be odd"
 
-    if check_existing_datasets(win_size, datasets_path):
-        print(f"Dataset with {win_size = } is already exist")
-        return 
-    
+    if dataset_name is None:
+        dataset_name = f"data_win{win_size}.csv"
+    else:
+        dataset_name += ".csv"
+
+    assert check_existing_datasets(dataset_name, datasets_path), \
+        f"Dataset with '{dataset_name}' already exists, change window size"
+
     counter = 0
     win_size_square = win_size * win_size
     data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
 
-    for file_name in tqdm(img_list):
+    for file_name in tqdm(listdir(img_path)):
 
         # Load and convert image
         path = f"{img_path}\{file_name}"
@@ -34,8 +41,8 @@ def generate_csv(*, win_size, dump_to_file):
 
         # Creatre border
         half_win_size = win_size // 2
-        img_with_borders = add_borders(
-            img, half_win_size, img.size[0], img.size[1])
+        img_with_borders = add_borders(img, half_win_size,
+                                       img.size[0], img.size[1])
         norm_img_with_borders = np.array(img_with_borders) / 255
 
         for y in range(half_win_size, half_win_size + img.size[1]):
@@ -61,9 +68,10 @@ def generate_csv(*, win_size, dump_to_file):
                 counter += 1
                 if (counter % dump_to_file) == 0:
                     df = pd.DataFrame(data_arr)
+
                     # 0...n, target
-                    df.to_csv(f"{datasets_path}\data_win{win_size}.csv",
-                        sep=",", mode='a', index=False, header=False)
+                    df.to_csv(f"{datasets_path}\{dataset_name}",
+                              sep=",", mode='a', index=False, header=False)
                     counter = 0
 
     df = pd.DataFrame(data_arr[:counter])
