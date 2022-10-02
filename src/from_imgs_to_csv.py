@@ -43,6 +43,8 @@ def generate_csv(*, win_size, dump_to_file,
         half_win_size = win_size // 2
         img_with_borders = add_borders(img, half_win_size,
                                        img.size[0], img.size[1])
+
+        # Normalization
         norm_img_with_borders = np.array(img_with_borders) / 255
 
         for y in range(half_win_size, half_win_size + img.size[1]):

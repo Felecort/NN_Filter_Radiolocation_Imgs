@@ -13,12 +13,12 @@ def check_existing_datasets(dataset_name, datasets_path) -> bool:
     return True
 
 
-def add_noise(img, win_size)-> np.array:
+def add_noise(img, win_size, scale=0.2707)-> np.array:
     """Add the noise on image using
     (img + img * noise) formula"""
     
     # Create noise
-    noise = np.random.rayleigh(scale=0.2707, size=(win_size, win_size))
+    noise = np.random.rayleigh(scale=scale, size=(win_size, win_size))
     # Add noise
     noised_img = img + img * noise
     return noised_img
