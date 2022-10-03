@@ -1,9 +1,11 @@
+from random import shuffle
 import pandas as pd
 import numpy as np
 from os import listdir
 from PIL import Image, ImageOps
 from tqdm import tqdm
 from img_preparation import *
+
 
 # Define constants
 datasets_path = r"..\datasets\csv_files"
@@ -19,6 +21,7 @@ def generate_csv(*, win_size, dump_to_file,
     window on images with borders.
     """
 
+
     assert (win_size % 2) == 1, "win_size must be odd"
 
     if dataset_name is None:
@@ -32,8 +35,16 @@ def generate_csv(*, win_size, dump_to_file,
     counter = 0
     win_size_square = win_size * win_size
     data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
-
-    for file_name in tqdm(listdir(img_path)):
+    imgs_list = listdir(img_path)
+    
+    """ Test dataset shuffle """
+    # shuffled_idxs = get_total_length(img_path, imgs_list)
+    # print(shuffled_idxs[0][:20])
+    # print(shuffled_idxs[2][:20])
+    # return
+    """ Test dataset shuffle """
+    
+    for file_name in tqdm(imgs_list):
 
         # Load and convert image
         path = f"{img_path}\{file_name}"
