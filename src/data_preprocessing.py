@@ -1,13 +1,16 @@
+import numpy as np
 from random import shuffle
 from PIL import ImageOps, Image
-import numpy as np
 from os import listdir
 from operator import mul
 from functools import reduce
 
+
+##################################################
+# Testing
 def get_total_length(img_path, img_list) -> list[list]:
     """
-    Get and creates mixed  image indexes
+    Finds and returns the shuffled indexes of each image 
     """
     pixels_in_imgs = [reduce(mul, Image.open(f"{img_path}\{img}").size) for img in img_list]
     idx_arrs = [list(range(idxs)) for idxs in pixels_in_imgs]
@@ -15,13 +18,14 @@ def get_total_length(img_path, img_list) -> list[list]:
     for arr in idx_arrs:
         shuffle(arr)
     return idx_arrs
+##################################################
+
 
 def check_existing_datasets(dataset_name, datasets_path) -> bool:
     """
-    This function check does the dataset exist.
+    Checks if the dataset exists.
     If True new dataset won't be created
     """
-    
     datasets = listdir(datasets_path)
     if dataset_name in datasets:
         return False
@@ -30,10 +34,9 @@ def check_existing_datasets(dataset_name, datasets_path) -> bool:
 
 def add_noise(img, win_size, scale=0.2707)-> np.array:
     """
-    Add the noise on image using
+    Adds the noise on image using
     (img + img * noise) formula
     """
-    
     # Create noise
     noise = np.random.rayleigh(scale=scale, size=(win_size, win_size))
     # Add noise
@@ -43,10 +46,9 @@ def add_noise(img, win_size, scale=0.2707)-> np.array:
 
 def add_borders(img, win_size, x, y) -> Image:
     """
-    Create images with mirrowed and
-    flipped borders with win_size // 2 width
+    Creates images with mirrowed and
+    flipped borders with width = win_size // 2 
     """
-    
     # Sides
     left_side = img.crop((0, 0, win_size, y))
     right_side = img.crop((x - win_size, 0, x, y))

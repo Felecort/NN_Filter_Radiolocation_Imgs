@@ -1,10 +1,9 @@
-from random import shuffle
 import pandas as pd
 import numpy as np
 from os import listdir
 from PIL import Image, ImageOps
 from tqdm import tqdm
-from img_preparation import *
+from data_preprocessing import *
 
 
 # Define constants
@@ -21,8 +20,7 @@ def generate_csv(*, win_size, dump_to_file,
     window on images with borders.
     """
 
-
-    assert (win_size % 2) == 1, "win_size must be odd"
+    assert (win_size % 2) == 1, "The win_size should be odd"
 
     if dataset_name is None:
         dataset_name = f"data_win{win_size}.csv"
@@ -30,7 +28,7 @@ def generate_csv(*, win_size, dump_to_file,
         dataset_name += ".csv"
 
     assert check_existing_datasets(dataset_name, datasets_path), \
-        f"Dataset with '{dataset_name}' already exists, change window size"
+        f"Dataset with '{dataset_name}' already exists, change the window size"
 
     counter = 0
     win_size_square = win_size * win_size
