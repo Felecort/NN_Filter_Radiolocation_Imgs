@@ -30,6 +30,7 @@ def assign_name_to_dataset(dataset_name, win_size) -> str:
     else:
         assert isinstance(dataset_name, str), "Dataset name shuold be str"
         assert len(dataset_name) > 0, "Name shouldn't be empty line"
+        dataset_name = dataset_name.replace(" ", "_")
         if dataset_name[-4:] != ".csv":
             dataset_name += ".csv"
     return dataset_name
@@ -42,7 +43,7 @@ def check_existing_datasets(dataset_name, datasets_path) -> None:
     """
     datasets = listdir(datasets_path)
     assert dataset_name not in datasets,\
-        f"Dataset with '{dataset_name}' already exists, change the window size"
+        f"Dataset '{dataset_name}' already exists, change the window size"
 
 
 
