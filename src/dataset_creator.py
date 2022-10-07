@@ -20,15 +20,15 @@ def generate_csv(*, win_size, dump_to_file,
     window on images with borders.
     """
 
+    #############################################################
+    # Checking valid name, win_size and existing dataset
     assert (win_size % 2) == 1, "The win_size should be odd"
 
-    if dataset_name is None:
-        dataset_name = f"data_win{win_size}.csv"
-    else:
-        dataset_name += ".csv"
+    dataset_name = assign_name_to_dataset(dataset_name, win_size)
 
-    assert check_existing_datasets(dataset_name, datasets_path), \
-        f"Dataset with '{dataset_name}' already exists, change the window size"
+    check_existing_datasets(dataset_name, datasets_path)
+    #############################################################
+
 
     counter = 0
     win_size_square = win_size * win_size
