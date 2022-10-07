@@ -21,15 +21,29 @@ def get_total_length(img_path, img_list) -> list[list]:
 ##################################################
 
 
-def check_existing_datasets(dataset_name, datasets_path) -> bool:
+def assign_name_to_dataset(dataset_name, win_size) -> str:
+    """
+    Return the valid dataset_name
+    """
+    if dataset_name is None:
+        dataset_name = f"data_win{win_size}.csv"
+    else:
+        assert isinstance(dataset_name, str), "Dataset name shuold be str"
+        assert len(dataset_name) > 0, "Name shouldn't be empty line"
+        if dataset_name[-4:] != ".csv":
+            dataset_name += ".csv"
+    return dataset_name
+
+
+def check_existing_datasets(dataset_name, datasets_path) -> None:
     """
     Checks if the dataset exists.
     If True new dataset won't be created
     """
     datasets = listdir(datasets_path)
-    if dataset_name in datasets:
-        return False
-    return True
+    assert dataset_name not in datasets,\
+        f"Dataset with '{dataset_name}' already exists, change the window size"
+
 
 
 def add_noise(img, win_size, scale=0.2707)-> np.array:
