@@ -1,7 +1,6 @@
 import numpy as np
 from random import shuffle
 from PIL import ImageOps, Image
-
 from operator import mul
 from functools import reduce
 
