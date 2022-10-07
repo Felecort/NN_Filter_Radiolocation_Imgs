@@ -11,11 +11,11 @@ datasets_path = r"..\datasets\csv_files"
 img_path = r"..\datasets\images"
 
 
-def generate_csv(*, win_size,
-                 dump_to_file,
-                 img_path=img_path,
+def generate_csv(*, win_size: int,
+                 dump_to_file: int,
+                 img_path= img_path,
                  datasets_path=datasets_path,
-                 dataset_name=None):
+                 dataset_name=None) -> None:
     """
     This function create dataset using certan
     window on images with borders.
