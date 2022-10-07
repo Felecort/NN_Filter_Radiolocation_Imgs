@@ -1,23 +1,77 @@
+from pprint import pprint
+from traceback import print_tb
 import numpy as np
 from random import shuffle
 from PIL import ImageOps, Image
 from operator import mul
 from functools import reduce
 
+from pprint import pprint
 
 ##################################################
 # Testing
-def get_total_length(img_path, img_list) -> list[list]:
+def get_shuffled_idxs(img_path, img_list, step) -> list[list]:
     """
     Finds and returns the shuffled indexes of each image 
     """
-    pixels_in_imgs = [reduce(mul, Image.open(f"{img_path}\{img}").size) for img in img_list]
-    idx_arrs = [list(range(idxs)) for idxs in pixels_in_imgs]
     
-    for arr in idx_arrs:
-        shuffle(arr)
-    return idx_arrs
+    
+    
+    # path = f"{img_path}\{img}"
+    # img_path = r"D:\Projects\PythonProjects\NIR\datasets\tmp"
+    # img_list = listdir(img_path)
+    # print(img_list)
+    # x, y = Image.open(f"{img_path}\{img_list[0]}").size
+    # print(x, y)
+    # x_scaled, y_scaled = x // step, y // step
+
+    # [[key1, [val1, val1]], [key2, [val1, val2]]]
+    for img in img_list:
+        img_size: tuple = Image.open(f"{img_path}\{img}").size
+        x, y = [i // step for i in img_size]
+        # print(x, y)
+        keys = np.arange(y + 1) * 5
+        vals = np.arange(x + 1) * 5
+        # print(keys, vals)
+        d = {key: vals.copy() for key in keys}
+        d[35][3] = -1
+        d[40][4]
+        pprint(d)
+        return 
+        
+        
+        
+    
+    # pixels_in_imgs = [reduce(mul, Image.open(f"{img_path}\{img}").size) for img in img_list]
+    # print(pixels_in_imgs)
+    # idx_arrs = [list(range(0, idxs, step)) for idxs in pixels_in_imgs]
+    
+    # for arr in idx_arrs:
+    #     shuffle(arr)
+        
+    # print(f"Indexes in first img {idx_arrs[0][:5]}")
+    # print(f"Total indexes in ")
+    return
 ##################################################
+
+if __name__ == "__main__":
+    from os import listdir
+    img_path = r"D:\Projects\PythonProjects\NIR\datasets\images"
+    imgs_list = listdir(img_path)
+    step = 5
+    
+    get_shuffled_idxs(img_path, imgs_list, step)
+    
+
+
+
+
+
+
+
+
+
+
 
 
 def add_noise(img, win_size, scale=0.2707)-> np.array:
