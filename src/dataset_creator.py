@@ -6,12 +6,13 @@ from tqdm import tqdm
 from data_preprocessing import *
 
 
-# Define constants
+# Define global constants
 datasets_path = r"..\datasets\csv_files"
 img_path = r"..\datasets\images"
 
 
-def generate_csv(*, win_size, dump_to_file,
+def generate_csv(*, win_size,
+                 dump_to_file,
                  img_path=img_path,
                  datasets_path=datasets_path,
                  dataset_name=None):
@@ -29,7 +30,7 @@ def generate_csv(*, win_size, dump_to_file,
     check_existing_datasets(dataset_name, datasets_path)
     #############################################################
 
-
+    # Define constants
     counter = 0
     win_size_square = win_size * win_size
     data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
