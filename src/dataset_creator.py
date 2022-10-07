@@ -13,6 +13,7 @@ img_path = r"..\datasets\images"
 
 def generate_csv(*, win_size: int,
                  dump_to_file: int,
+                 step:int = 1,
                  img_path= img_path,
                  datasets_path=datasets_path,
                  dataset_name=None) -> None:
@@ -38,7 +39,7 @@ def generate_csv(*, win_size: int,
     half_win_size = win_size // 2
 
     """ Test dataset shuffle """
-    # shuffled_idxs = get_total_length(img_path, imgs_list)
+    # shuffled_idxs = get_total_length(img_path, imgs_list, step)
     # print(shuffled_idxs[0][:20])
     # print(shuffled_idxs[2][:20])
     # return
@@ -55,6 +56,40 @@ def generate_csv(*, win_size: int,
 
         # Normalization
         norm_img_with_borders = np.array(img_with_borders) / 255
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         for y in range(half_win_size, half_win_size + img.size[1]):
             for x in range(half_win_size, half_win_size + img.size[0]):
