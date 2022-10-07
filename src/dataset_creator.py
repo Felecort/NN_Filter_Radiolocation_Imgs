@@ -3,8 +3,8 @@ import numpy as np
 from os import listdir
 from PIL import Image, ImageOps
 from tqdm import tqdm
-from data_preprocessing import *
-
+from image_preprocessing import *
+from check_valid_data import *
 
 # Define global constants
 datasets_path = r"..\datasets\csv_files"
@@ -35,7 +35,8 @@ def generate_csv(*, win_size,
     win_size_square = win_size * win_size
     data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
     imgs_list = listdir(img_path)
-    
+    half_win_size = win_size // 2
+
     """ Test dataset shuffle """
     # shuffled_idxs = get_total_length(img_path, imgs_list)
     # print(shuffled_idxs[0][:20])
@@ -46,11 +47,9 @@ def generate_csv(*, win_size,
     for file_name in tqdm(imgs_list):
 
         # Load and convert image
-        path = f"{img_path}\{file_name}"
-        img = ImageOps.grayscale(Image.open(path))
+        img = ImageOps.grayscale(Image.open(f"{img_path}\{file_name}"))
 
         # Creatre border
-        half_win_size = win_size // 2
         img_with_borders = add_borders(img, half_win_size,
                                        img.size[0], img.size[1])
 
