@@ -1,10 +1,10 @@
 from pprint import pprint
 from traceback import print_tb
 import numpy as np
-from random import shuffle
+from random import sample
 from PIL import ImageOps, Image
-from operator import mul
-from functools import reduce
+# from operator import mul
+# from functools import reduce
 
 from pprint import pprint
 
@@ -14,26 +14,16 @@ def get_shuffled_idxs(img_path, img_list, step) -> list[list]:
     """
     Finds and returns the shuffled indexes of each image 
     """
-    
-    
-    
-    # path = f"{img_path}\{img}"
-    # img_path = r"D:\Projects\PythonProjects\NIR\datasets\tmp"
-    # img_list = listdir(img_path)
-    # print(img_list)
-    # x, y = Image.open(f"{img_path}\{img_list[0]}").size
-    # print(x, y)
-    # x_scaled, y_scaled = x // step, y // step
 
     # [[key1, [val1, val1]], [key2, [val1, val2]]]
     for img in img_list:
         img_size: tuple = Image.open(f"{img_path}\{img}").size
         x, y = [i // step for i in img_size]
         # print(x, y)
-        keys = np.arange(y + 1) * 5
-        vals = np.arange(x + 1) * 5
-        # print(keys, vals)
-        d = {key: vals.copy() for key in keys}
+        keys = list(range(0, (y + 1) * step, step))
+        vals = list(range(0, (x + 1) * step, step))
+
+        d = {key: sample(vals.copy(), x) for key in keys}
         d[35][3] = -1
         d[40][4]
         pprint(d)
