@@ -57,40 +57,6 @@ def generate_csv(*, win_size: int,
         # Normalization
         norm_img_with_borders = np.array(img_with_borders) / 255
 
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         for y in range(half_win_size, half_win_size + img.size[1]):
             for x in range(half_win_size, half_win_size + img.size[0]):
 
