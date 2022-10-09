@@ -3,7 +3,7 @@ from random import sample
 from PIL import ImageOps, Image
 
 
-def load_images(img_path, list_of_img_names) -> Image:
+def load_images(img_path, list_of_img_names) -> list:
     """
     Load all the images in determine folder and convert to grayscale
     """
@@ -16,7 +16,7 @@ def load_images(img_path, list_of_img_names) -> Image:
     return imgs_list
 
 
-def get_shuffled_idxs(*, img_path, list_of_img_names, step=1) -> list[dict]:
+def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
     """
     Finds and returns the shuffled pixel of image
     [{column1: [row1],
@@ -26,8 +26,8 @@ def get_shuffled_idxs(*, img_path, list_of_img_names, step=1) -> list[dict]:
     """
     shuffled_imgs_idxs = []
     keys_list = []
-    for img in list_of_img_names:
-        img_size = Image.open(f"{img_path}\{img}").size # tuple (x, y)
+    for img in imgs_list:
+        img_size = img.size # tuple (x, y)
         x, y = (i // step for i in img_size)
         keys_y = list(range(0, (y + 1) * step, step))
         vals_x = list(range(0, (x + 1) * step, step))
