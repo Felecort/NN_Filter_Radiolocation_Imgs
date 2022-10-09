@@ -1,26 +1,38 @@
-from pprint import pprint
 import numpy as np
 from random import sample
 from PIL import ImageOps, Image
 
 
-def get_shuffled_idxs(*, img_path, img_list, step=1) -> list[dict]:
+def load_images(img_path, list_of_img_names) -> Image:
+    imgs_list = []
+    for image_name in list_of_img_names:
+        img = Image.open(f"{img_path}\{image_name}")
+        print(f"\n{image_name}")
+        img = ImageOps.grayscale(img)
+        imgs_list.append(img)
+    return imgs_list
+
+
+def get_shuffled_idxs(*, img_path, list_of_img_names, step=1) -> list[dict]:
     """
     Finds and returns the shuffled pixel of image
-    {column1: [row1],
+    [{column1: [row1],
      column2: [row2],
-     ...}
+     ...},
+     ...]
     """
     shuffled_imgs_idxs = []
-    for img in img_list:
+    keys_list = []
+    for img in list_of_img_names:
         img_size = Image.open(f"{img_path}\{img}").size # tuple (x, y)
         x, y = (i // step for i in img_size)
         keys_y = list(range(0, (y + 1) * step, step))
         vals_x = list(range(0, (x + 1) * step, step))
 
         img_indxs = {key: sample(vals_x.copy(), x) for key in keys_y}
+        keys_list.append(keys_y)
         shuffled_imgs_idxs.append(img_indxs)
-    return shuffled_imgs_idxs
+    return shuffled_imgs_idxs, keys_list
 
 
 def add_noise(img, win_size, scale=0.2707)-> np.array:
