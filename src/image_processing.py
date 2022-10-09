@@ -27,7 +27,7 @@ def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
     shuffled_imgs_idxs = []
     keys_list = []
     for img in imgs_list:
-        img_size = img.size # tuple (x, y)
+        img_size = img.size  # tuple (x, y)
         x, y = (i // step for i in img_size)
         keys_y = list(range(0, (y + 1) * step, step))
         vals_x = list(range(0, (x + 1) * step, step))
@@ -38,7 +38,7 @@ def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
     return shuffled_imgs_idxs, keys_list
 
 
-def add_noise(img, win_size, scale=0.2707)-> np.array:
+def add_noise(img, win_size, scale=0.2707) -> np.array:
     """
     Adds the noise on image using
     (img + img * noise) formula
@@ -50,11 +50,14 @@ def add_noise(img, win_size, scale=0.2707)-> np.array:
     return noised_img
 
 
-def add_borders(img, win_size, x, y) -> Image:
+def add_borders(img, win_size) -> Image:
     """
     Creates images with mirrowed and
     flipped borders with width = win_size // 2 
     """
+    x = img.size[0]
+    y = img.size[1]
+
     # Sides
     left_side = img.crop((0, 0, win_size, y))
     right_side = img.crop((x - win_size, 0, x, y))
