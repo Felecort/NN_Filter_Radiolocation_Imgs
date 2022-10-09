@@ -4,6 +4,9 @@ from PIL import ImageOps, Image
 
 
 def load_images(img_path, list_of_img_names) -> Image:
+    """
+    Load all the images in determine folder and convert to grayscale
+    """
     imgs_list = []
     for image_name in list_of_img_names:
         img = Image.open(f"{img_path}\{image_name}")
