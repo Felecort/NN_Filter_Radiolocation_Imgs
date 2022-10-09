@@ -16,7 +16,7 @@ img_path = r"..\datasets\images"
 
 def generate_csv(*, win_size: int,
                  dump_to_file: int,
-                 step:int = 1,
+                 step: int = 1,
                  img_path=img_path,
                  datasets_path=datasets_path,
                  dataset_name=None) -> None:
@@ -26,56 +26,51 @@ def generate_csv(*, win_size: int,
     """
     #############################################################
     # Checking valid name, win_size and existing dataset
-    assert ((win_size % 2) == 1) and (win_size > 0), "The win_size should be odd positive"
-    dataset_name = assign_name_to_dataset(dataset_name, win_size)
+    check_valid_win_size(win_size)
     check_existing_datasets(dataset_name, datasets_path)
+    dataset_name = assign_name_to_dataset(dataset_name, win_size)
     #############################################################
 
     # Define constants
     counter = 0
-    # win_size_square = win_size * win_size
-    # half_win_size = win_size // 2
-    # data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
+    half_win_size = win_size // 2
     list_of_img_names = listdir(img_path)
+    # win_size_square = win_size * win_size
+    # data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
     create_dataset = True
-    
+
+    # Load the images and convert to grayscale
     imgs_list = load_images(img_path, list_of_img_names)
-    
+
     shuffled_idxs, keys_list = get_shuffled_idxs(imgs_list=imgs_list, step=step)
-    
-    
+
+    # Adding a border for each image
+    parsed_imgs_list = [add_borders(img, half_win_size) for img in imgs_list]
+    del imgs_list
+
     while create_dataset:
         # Random choose image, row(key) and val(column)
-        
-        # Get an index if random image 
+        # Get an index if random image
         chosen_img_idx = randint(0, len(shuffled_idxs) - 1)
-        
         # Get image by a random index
         chosen_img = shuffled_idxs[chosen_img_idx]
-        
-        # Get y indexes-column, the keys in a dict 
+        # Get y indexes-column, the keys in a dict
         chosen_keys = keys_list[chosen_img_idx]
-        
-        # Get random key-row 
+        # Get random key-row
         row = choice(chosen_keys)
-        
         # Get row by random index(key) in a dict
         values = chosen_img[row]
-        
         # Get last value. Values have been just shuffled
         column = values.pop()
-        
-        
-        
-        return
 
+        return
 
 
 if __name__ == "__main__":
     generate_csv(win_size=7, dump_to_file=1000, step=100,
                  img_path=r"D:\Projects\PythonProjects\NIR\datasets\images",
                  datasets_path=r"D:\Projects\PythonProjects\NIR\datasets\csv_files")
-    
+
     # for file_name in tqdm(list_of_img_names):
 
     #     # Load and convert image
