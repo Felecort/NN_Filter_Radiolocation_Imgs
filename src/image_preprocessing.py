@@ -3,65 +3,25 @@ from traceback import print_tb
 import numpy as np
 from random import sample
 from PIL import ImageOps, Image
-# from operator import mul
-# from functools import reduce
 
-from pprint import pprint
 
-##################################################
-# Testing
-def get_shuffled_idxs(img_path, img_list, step) -> list[list]:
+def get_shuffled_idxs(*, img_path, img_list, step=1) -> list[dict]:
     """
-    Finds and returns the shuffled indexes of each image 
+    Finds and returns the shuffled pixel of image
+    {column1: [row1],
+     column2: [row2],
+     ...}
     """
-
-    # [[key1, [val1, val1]], [key2, [val1, val2]]]
+    shuffled_imgs_idxs = []
     for img in img_list:
-        img_size: tuple = Image.open(f"{img_path}\{img}").size
-        x, y = [i // step for i in img_size]
-        # print(x, y)
-        keys = list(range(0, (y + 1) * step, step))
-        vals = list(range(0, (x + 1) * step, step))
+        img_size = Image.open(f"{img_path}\{img}").size # tuple (x, y)
+        x, y = (i // step for i in img_size)
+        keys_y = list(range(0, (y + 1) * step, step))
+        vals_x = list(range(0, (x + 1) * step, step))
 
-        d = {key: sample(vals.copy(), x) for key in keys}
-        d[35][3] = -1
-        d[40][4]
-        pprint(d)
-        return 
-        
-        
-        
-    
-    # pixels_in_imgs = [reduce(mul, Image.open(f"{img_path}\{img}").size) for img in img_list]
-    # print(pixels_in_imgs)
-    # idx_arrs = [list(range(0, idxs, step)) for idxs in pixels_in_imgs]
-    
-    # for arr in idx_arrs:
-    #     shuffle(arr)
-        
-    # print(f"Indexes in first img {idx_arrs[0][:5]}")
-    # print(f"Total indexes in ")
-    return
-##################################################
-
-if __name__ == "__main__":
-    from os import listdir
-    img_path = r"D:\Projects\PythonProjects\NIR\datasets\images"
-    imgs_list = listdir(img_path)
-    step = 5
-    
-    get_shuffled_idxs(img_path, imgs_list, step)
-    
-
-
-
-
-
-
-
-
-
-
+        img_indxs = {key: sample(vals_x.copy(), x) for key in keys_y}
+        shuffled_imgs_idxs.append(img_indxs)
+    return shuffled_imgs_idxs
 
 
 def add_noise(img, win_size, scale=0.2707)-> np.array:
