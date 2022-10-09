@@ -37,33 +37,48 @@ def generate_csv(*, win_size: int,
     list_of_img_names = listdir(img_path)
     # win_size_square = win_size * win_size
     # data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
-    create_dataset = True
 
     # Load the images and convert to grayscale
     imgs_list = load_images(img_path, list_of_img_names)
 
-    shuffled_idxs, keys_list = get_shuffled_idxs(imgs_list=imgs_list, step=step)
+    m_shuffled_idxs, m_keys_list = get_shuffled_idxs(imgs_list=imgs_list, step=step)
 
     # Adding a border for each image
-    parsed_imgs_list = [add_borders(img, half_win_size) for img in imgs_list]
+    parsed_imgs_list = [np.array(add_borders(img, half_win_size)) / 255 for img in imgs_list]
     del imgs_list
 
-    while create_dataset:
-        # Random choose image, row(key) and val(column)
+    while m_shuffled_idxs:
+        ############################################################
+        # Random choose image, m_row(key) and val(m_column)
         # Get an index if random image
-        chosen_img_idx = randint(0, len(shuffled_idxs) - 1)
+        m_chosen_img_idx = randint(0, len(m_shuffled_idxs) - 1)
         # Get image by a random index
-        chosen_img = shuffled_idxs[chosen_img_idx]
-        # Get y indexes-column, the keys in a dict
-        chosen_keys = keys_list[chosen_img_idx]
-        # Get random key-row
-        row = choice(chosen_keys)
-        # Get row by random index(key) in a dict
-        values = chosen_img[row]
+        m_chosen_img = m_shuffled_idxs[m_chosen_img_idx]
+        # Get y indexes-m_column, the keys in a dict
+        m_chosen_keys = m_keys_list[m_chosen_img_idx]
+        # Get random key-m_row
+        m_row_idx = randint(0, len(m_chosen_keys) - 1)
+        m_row = m_keys_list[m_chosen_img_idx][m_row_idx]
         # Get last value. Values have been just shuffled
-        column = values.pop()
+        m_column = m_shuffled_idxs[m_chosen_img_idx][m_row].pop()
+        ############################################################
+        
+        main_img = parsed_imgs_list[m_chosen_img_idx]
+        cropped_img = main_img[m_row:m_row+win_size, m_column:m_column+win_size]
+        
+        target = cropped_img[half_win_size, half_win_size]
+        data = add_noise(cropped_img)
 
-        return
+        ############################################################
+        if len(m_shuffled_idxs[m_chosen_img_idx][m_row]) == 0:
+            m_shuffled_idxs[m_chosen_img_idx].pop(m_row)
+            m_keys_list[m_chosen_img_idx].pop(m_row_idx)
+            counter += 1
+        if not m_shuffled_idxs[m_chosen_img_idx]:
+            m_shuffled_idxs.pop(m_chosen_img_idx)
+            m_keys_list.pop(m_chosen_img_idx)
+        ############################################################
+    print(counter)
 
 
 if __name__ == "__main__":
