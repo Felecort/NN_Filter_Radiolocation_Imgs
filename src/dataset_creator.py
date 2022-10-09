@@ -39,10 +39,9 @@ def generate_csv(*, win_size: int,
     list_of_img_names = listdir(img_path)
     create_dataset = True
     
-    load_images(img_path, list_of_img_names)
-    return
+    imgs_list = load_images(img_path, list_of_img_names)
     
-    shuffled_idxs, keys_list = get_shuffled_idxs(img_path=img_path, list_of_img_names=list_of_img_names, step=step)
+    shuffled_idxs, keys_list = get_shuffled_idxs(imgs_list=imgs_list, step=step)
     
     
     while create_dataset:
