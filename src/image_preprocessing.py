@@ -1,5 +1,4 @@
 from pprint import pprint
-from traceback import print_tb
 import numpy as np
 from random import sample
 from PIL import ImageOps, Image
