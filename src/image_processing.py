@@ -10,7 +10,6 @@ def load_images(img_path, list_of_img_names) -> list:
     imgs_list = []
     for image_name in list_of_img_names:
         img = Image.open(f"{img_path}\{image_name}")
-        print(f"\n{image_name}")
         img = ImageOps.grayscale(img)
         imgs_list.append(img)
     return imgs_list
@@ -38,13 +37,14 @@ def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
     return shuffled_imgs_idxs, keys_list
 
 
-def add_noise(img, win_size, scale=0.2707) -> np.array:
+def add_noise(img, scale=0.2707) -> np.array:
     """
     Adds the noise on image using
     (img + img * noise) formula
     """
     # Create noise
-    noise = np.random.rayleigh(scale=scale, size=(win_size, win_size))
+    size = img.shape
+    noise = np.random.rayleigh(scale=scale, size=size)
     # Add noise
     noised_img = img + img * noise
     return noised_img
