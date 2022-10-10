@@ -1,12 +1,9 @@
-from random import choice, randint
-import pandas as pd
+from random import randint
 import numpy as np
 from os import listdir
-from PIL import Image, ImageOps
 from tqdm import tqdm
 from image_processing import *
 from check_validity_of_values import *
-from pprint import pprint
 
 
 # Define global constants
@@ -52,8 +49,6 @@ def generate_csv(*, win_size: int,
         # Random choose image, m_row(key) and val(m_column)
         # Get an index if random image
         m_chosen_img_idx = randint(0, len(m_shuffled_idxs) - 1)
-        # Get image by a random index
-        m_chosen_img = m_shuffled_idxs[m_chosen_img_idx]
         # Get y indexes-m_column, the keys in a dict
         m_chosen_keys = m_keys_list[m_chosen_img_idx]
         # Get random key-m_row
@@ -63,18 +58,24 @@ def generate_csv(*, win_size: int,
         m_column = m_shuffled_idxs[m_chosen_img_idx][m_row].pop()
         ############################################################
         
+        
+        
+        
         main_img = parsed_imgs_list[m_chosen_img_idx]
         cropped_img = main_img[m_row:m_row+win_size, m_column:m_column+win_size]
         
         target = cropped_img[half_win_size, half_win_size]
         data = add_noise(cropped_img)
+        counter += 1
+
+
 
         ############################################################
         if len(m_shuffled_idxs[m_chosen_img_idx][m_row]) == 0:
             m_shuffled_idxs[m_chosen_img_idx].pop(m_row)
             m_keys_list[m_chosen_img_idx].pop(m_row_idx)
-            counter += 1
-        if not m_shuffled_idxs[m_chosen_img_idx]:
+            # counter += 1
+        if len(m_shuffled_idxs[m_chosen_img_idx]) == 0:
             m_shuffled_idxs.pop(m_chosen_img_idx)
             m_keys_list.pop(m_chosen_img_idx)
         ############################################################
@@ -82,7 +83,7 @@ def generate_csv(*, win_size: int,
 
 
 if __name__ == "__main__":
-    generate_csv(win_size=7, dump_to_file=1000, step=100,
+    generate_csv(win_size=7, dump_to_file=1000, step=1,
                  img_path=r"D:\Projects\PythonProjects\NIR\datasets\images",
                  datasets_path=r"D:\Projects\PythonProjects\NIR\datasets\csv_files")
 
