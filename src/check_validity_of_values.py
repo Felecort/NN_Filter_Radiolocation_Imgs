@@ -3,7 +3,7 @@ from os import listdir
 
 def check_valid_win_size(win_size) -> None:
     assert type(win_size) is int, "The win_size should be int"
-    assert win_size > 0, "The win_size should be positive"
+    assert win_size > 1, "The win_size should be more than 2"
     assert win_size % 2 == 1, "The win_size should be odd"
 
 
