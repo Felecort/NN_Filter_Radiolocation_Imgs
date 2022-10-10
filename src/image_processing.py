@@ -28,7 +28,6 @@ def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
     for img in imgs_list:
         img_size = img.size  # tuple (x, y)
         x, y = (i // step for i in img_size)
-        print(x, y)
         keys_y = list(range(0, y * step, step))
         vals_x = list(range(0, x * step, step))
 
