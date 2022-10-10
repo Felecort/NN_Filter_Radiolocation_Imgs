@@ -3,12 +3,13 @@ import numpy as np
 from os import listdir
 from image_processing import *
 from check_validity_of_values import *
-from time import time
+from assistive_funcs import *
 
 
 # Define global constants
 datasets_path = r"..\datasets\csv_files"
 img_path = r"..\datasets\images"
+start_time = delta_time()
 
 
 def generate_csv(*, win_size: int,
@@ -40,10 +41,11 @@ def generate_csv(*, win_size: int,
 
     m_shuffled_idxs, m_keys_list, total_length = get_shuffled_idxs(imgs_list=imgs_list, step=step)
 
-
-    
     # Adding a border for each image
     parsed_imgs_list = [np.array(add_borders(img, half_win_size)) / 255 for img in imgs_list]
+    
+    print(f"Borders were added, indexes created. passed time = {start_time()}")
+    
     del imgs_list
     with open(f"{datasets_path}\{dataset_name}", "w", newline='') as f:
         while m_shuffled_idxs:
@@ -82,10 +84,10 @@ def generate_csv(*, win_size: int,
                     m_shuffled_idxs.pop(m_chosen_img_idx)
                     m_keys_list.pop(m_chosen_img_idx)
             ############################################################
-
+    print(f"Dataset created. Total spent time = {start_time()}")
 
 if __name__ == "__main__":
-    generate_csv(win_size=101, dump_to_file=1000, step=1,
+    generate_csv(win_size=7, dump_to_file=1000, step=1,
                  img_path=r"D:\Projects\PythonProjects\NIR\datasets\images",
                  datasets_path=r"D:\Projects\PythonProjects\NIR\datasets\csv_files",
                  force_create_dataset=True)
