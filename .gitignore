@@ -1,3 +1,5 @@
 datasets/csv_files
 src/__pycache__
-src/tmp.*
+tmp
+
+*.txt
