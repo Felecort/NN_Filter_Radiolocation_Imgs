@@ -4,17 +4,15 @@ from os import listdir
 from image_processing import *
 from check_validity_of_values import *
 from assistive_funcs import *
-
+import csv
 
 # Define global constants
 datasets_path = r"..\datasets\csv_files"
 img_path = r"..\datasets\images"
-start_time = delta_time()
 
 
-def generate_csv(*, win_size: int,
-                 dump_to_file: int,
-                 step: int = 1,
+
+def generate_csv(*, win_size, dump_to_file=1000, step=1,
                  img_path=img_path,
                  datasets_path=datasets_path,
                  dataset_name=None, 
@@ -33,8 +31,13 @@ def generate_csv(*, win_size: int,
     # Define constants
     counter = 0
     half_win_size = win_size // 2
+    win_square = win_size ** 2
+    
     list_of_img_names = listdir(img_path)
-    # data_arr = np.empty((dump_to_file, win_size_square + 1), dtype=float)
+    
+    total_data = np.empty((dump_to_file, win_square + 1), dtype=float)
+    
+    start_time = delta_time()
 
     # Load the images and convert to grayscale
     imgs_list = load_images(img_path, list_of_img_names)
@@ -44,10 +47,18 @@ def generate_csv(*, win_size: int,
     # Adding a border for each image
     parsed_imgs_list = [np.array(add_borders(img, half_win_size)) / 255 for img in imgs_list]
     
-    print(f"Borders were added, indexes created. passed time = {start_time()}")
-    
+    print(f"\nBorders were added, indexes created. passed time = {start_time():.2f}")
+        
     del imgs_list
+    
     with open(f"{datasets_path}\{dataset_name}", "w", newline='') as f:
+        
+        csv.register_dialect('datasets_creator',
+                            delimiter=',',
+                            quoting=csv.QUOTE_NONE,
+                            skipinitialspace=False)
+        writer_obj = csv.writer(f, dialect="datasets_creator")
+    
         while m_shuffled_idxs:
             counter += 1
             
@@ -71,8 +82,15 @@ def generate_csv(*, win_size: int,
             
             target = cropped_img[half_win_size, half_win_size]
             data = add_noise(cropped_img).flatten()
-
             
+            index_in_total_data = counter % dump_to_file
+            total_data[index_in_total_data][:win_square] = data
+            total_data[index_in_total_data][-1] = target
+            
+            if index_in_total_data == 0:
+                
+                writer_obj.writerows(total_data)
+                print(f"\rTime left = {start_time():.2f}, {(counter / total_length) * 100:.2f}%", end="")
             
             """ When no indexes in the line or no columns in image, removed keys, img"""
             """ The Devil will break his leg here """
@@ -84,11 +102,15 @@ def generate_csv(*, win_size: int,
                     m_shuffled_idxs.pop(m_chosen_img_idx)
                     m_keys_list.pop(m_chosen_img_idx)
             ############################################################
-    print(f"Dataset created. Total spent time = {start_time()}")
+        writer_obj.writerows(total_data[:index_in_total_data])
+        
+    print(f"""\nDataset created.
+              \rTotal spent time = {start_time():.2f}
+              \rTotal samples = {total_length}
+              \rDataset name '{dataset_name}'""")
 
 if __name__ == "__main__":
-    generate_csv(win_size=7, dump_to_file=1000, step=1,
+    generate_csv(win_size=11, dump_to_file=1000, step=1,
                  img_path=r"D:\Projects\PythonProjects\NIR\datasets\images",
                  datasets_path=r"D:\Projects\PythonProjects\NIR\datasets\csv_files",
                  force_create_dataset=True)
-
