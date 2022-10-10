@@ -7,12 +7,12 @@ def check_valid_win_size(win_size) -> None:
     assert win_size % 2 == 1, "The win_size should be odd"
 
 
-def assign_name_to_dataset(dataset_name, win_size) -> str:
+def assign_name_to_dataset(dataset_name, win_size, step) -> str:
     """
     Return the valid dataset_name
     """
     if dataset_name is None:
-        dataset_name = f"data_win{win_size}.csv"
+        dataset_name = f"data_win{win_size}_step{step}.csv"
     else:
         assert isinstance(dataset_name, str), "Dataset name shuold be str"
         assert len(dataset_name) > 0, "Name shouldn't be empty line"
