@@ -15,7 +15,7 @@ def load_images(img_path, list_of_img_names) -> list:
     return imgs_list
 
 
-def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
+def get_shuffled_idxs(*, imgs_list, step=1) -> list[list, list, int]:
     """
     Finds and returns the shuffled pixel of image
     [{column1: [row1],
@@ -25,6 +25,7 @@ def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
     """
     shuffled_imgs_idxs = []
     keys_list = []
+    total_length = 0
     for img in imgs_list:
         img_size = img.size  # tuple (x, y)
         x, y = (i // step for i in img_size)
@@ -34,7 +35,8 @@ def get_shuffled_idxs(*, imgs_list, step=1) -> list[dict]:
         img_indxs = {key: sample(vals_x, x) for key in keys_y}
         keys_list.append(keys_y)
         shuffled_imgs_idxs.append(img_indxs)
-    return shuffled_imgs_idxs, keys_list
+        total_length += x * y
+    return shuffled_imgs_idxs, keys_list, total_length
 
 
 def add_noise(img, scale=0.2707) -> np.array:
