@@ -4,6 +4,7 @@ from os import listdir
 from tqdm import tqdm
 from image_processing import *
 from check_validity_of_values import *
+from time import time
 
 
 # Define global constants
@@ -25,7 +26,7 @@ def generate_csv(*, win_size: int,
     # Checking valid name, win_size and existing dataset
     check_valid_win_size(win_size)
     check_existing_datasets(dataset_name, datasets_path)
-    dataset_name = assign_name_to_dataset(dataset_name, win_size)
+    dataset_name = assign_name_to_dataset(dataset_name, win_size, step)
     #############################################################
 
     # Define constants
@@ -38,55 +39,65 @@ def generate_csv(*, win_size: int,
     # Load the images and convert to grayscale
     imgs_list = load_images(img_path, list_of_img_names)
 
-    m_shuffled_idxs, m_keys_list = get_shuffled_idxs(imgs_list=imgs_list, step=step)
+    m_shuffled_idxs, m_keys_list, total_length = get_shuffled_idxs(imgs_list=imgs_list, step=step)
 
+
+    
     # Adding a border for each image
     parsed_imgs_list = [np.array(add_borders(img, half_win_size)) / 255 for img in imgs_list]
     del imgs_list
 
-    while m_shuffled_idxs:
-        ############################################################
-        # Random choose image, m_row(key) and val(m_column)
-        # Get an index if random image
-        m_chosen_img_idx = randint(0, len(m_shuffled_idxs) - 1)
-        # Get y indexes-m_column, the keys in a dict
-        m_chosen_keys = m_keys_list[m_chosen_img_idx]
-        # Get random key-m_row
-        m_row_idx = randint(0, len(m_chosen_keys) - 1)
-        m_row = m_keys_list[m_chosen_img_idx][m_row_idx]
-        # Get last value. Values have been just shuffled
-        m_column = m_shuffled_idxs[m_chosen_img_idx][m_row].pop()
-        ############################################################
+    with open(f"{datasets_path}\{dataset_name}", "a") as f:
         
-        
-        
-        
-        main_img = parsed_imgs_list[m_chosen_img_idx]
-        cropped_img = main_img[m_row:m_row+win_size, m_column:m_column+win_size]
-        
-        target = cropped_img[half_win_size, half_win_size]
-        data = add_noise(cropped_img)
-        counter += 1
+        # Adding tqdm progress bar
+        pbar = tqdm(total=total_length)
 
-
-
-        ############################################################
-        if len(m_shuffled_idxs[m_chosen_img_idx][m_row]) == 0:
-            m_shuffled_idxs[m_chosen_img_idx].pop(m_row)
-            m_keys_list[m_chosen_img_idx].pop(m_row_idx)
-            # counter += 1
-        if len(m_shuffled_idxs[m_chosen_img_idx]) == 0:
-            m_shuffled_idxs.pop(m_chosen_img_idx)
-            m_keys_list.pop(m_chosen_img_idx)
-        ############################################################
-    print(counter)
+        while m_shuffled_idxs:
+            counter += 1
+            
+            """ This section choose random image, row and column """
+            ############################################################
+            # Random choose image, m_row(key) and val(m_column)
+            # Get an index if random image
+            m_chosen_img_idx = randint(0, len(m_shuffled_idxs) - 1)
+            # Get y indexes-m_column, the keys in a dict
+            m_chosen_keys = m_keys_list[m_chosen_img_idx]
+            # Get random key-m_row
+            m_row_idx = randint(0, len(m_chosen_keys) - 1)
+            m_row = m_keys_list[m_chosen_img_idx][m_row_idx]
+            # Get last value. Values have been just shuffled
+            m_column = m_shuffled_idxs[m_chosen_img_idx][m_row].pop()
+            ############################################################
+            
+            main_img = parsed_imgs_list[m_chosen_img_idx]
+            cropped_img = main_img[m_row:m_row+win_size, m_column:m_column+win_size]
+            
+            target = cropped_img[half_win_size, half_win_size]
+            data = add_noise(cropped_img)
+            print(target)
+            print(data)
+            return
+            
+            
+            """ When no indexes in the line or no columns in image, removed keys, img"""
+            ############################################################
+            if len(m_shuffled_idxs[m_chosen_img_idx][m_row]) == 0:
+                m_shuffled_idxs[m_chosen_img_idx].pop(m_row)
+                m_keys_list[m_chosen_img_idx].pop(m_row_idx)
+                # counter += 1
+                # print(f"\r{(counter / total_length) * 100}% ", end="")
+                if len(m_shuffled_idxs[m_chosen_img_idx]) == 0:
+                    m_shuffled_idxs.pop(m_chosen_img_idx)
+                    m_keys_list.pop(m_chosen_img_idx)
+            ############################################################
+            pbar.update()
+        pbar.close()
 
 
 if __name__ == "__main__":
-    generate_csv(win_size=7, dump_to_file=1000, step=1,
+    generate_csv(win_size=7, dump_to_file=1000, step=5,
                  img_path=r"D:\Projects\PythonProjects\NIR\datasets\images",
                  datasets_path=r"D:\Projects\PythonProjects\NIR\datasets\csv_files")
-
     # for file_name in tqdm(list_of_img_names):
 
     #     # Load and convert image
