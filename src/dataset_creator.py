@@ -16,13 +16,8 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     This function create dataset using certan
     window and step on the images with borders.
     """
-    #############################################################
-    # Checking valid name, win_size and existing dataset
     check_valid_win_size(win_size)
-    dataset_name = assign_name_to_dataset(dataset_name, win_size, step)
-    if not force_create_dataset:
-        check_existing_datasets(dataset_name, datasets_path)
-    #############################################################
+    need_to_add_name = check_dataset_name(dataset_name)
 
     # Define constants
     counter = 0
@@ -42,6 +37,11 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
 
     # Get shuffled indexes of imgs, rows, cols and the number of samples
     m_shuffled_idxs, m_keys_list, total_length = get_shuffled_idxs(imgs_list=imgs_list, step=step)
+    
+    if need_to_add_name:
+        dataset_name = f"W{win_size}_S{step}_L{total_length}.csv"
+    if not force_create_dataset:
+        check_existing_datasets(dataset_name, datasets_path)
 
     # Adding borders for each image
     parsed_imgs_list = [np.array(add_borders(img, half_win_size)) / 255

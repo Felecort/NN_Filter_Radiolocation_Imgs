@@ -7,19 +7,16 @@ def check_valid_win_size(win_size) -> None:
     assert win_size % 2 == 1, "The win_size should be odd"
 
 
-def assign_name_to_dataset(dataset_name, win_size, step) -> str:
+def check_dataset_name(dataset_name) -> bool:
     """
     Return the valid dataset_name
     """
     if dataset_name is None:
-        dataset_name = f"data_w{win_size}_s{step}.csv"
+        return True
     else:
         assert isinstance(dataset_name, str), "Dataset name shuold be str"
         assert len(dataset_name) > 0, "Name shouldn't be empty line"
-        dataset_name = dataset_name.replace(" ", "_")
-        if dataset_name[-4:] != ".csv":
-            dataset_name += ".csv"
-    return dataset_name
+        return False
 
 
 def check_existing_datasets(dataset_name, datasets_path) -> None:
