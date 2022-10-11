@@ -83,7 +83,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
             cropped_src_img = target_img[m_row:m_row+win_size, m_column:m_column+win_size]
 
             # Define target value and the noised data
-            target = cropped_src_img[half_win_size, half_win_size]
+            target = cropped_src_img[half_win_size, half_win_size] / 255
             data = cropped_img.flatten()
 
             # Adding data for a special list in certan row
