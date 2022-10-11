@@ -44,8 +44,9 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
         check_existing_datasets(dataset_name, datasets_path)
 
     # Adding borders for each image
-    parsed_imgs_list = [np.array(add_borders(img, half_win_size)) / 255
+    src_images = [np.array(add_borders(img, half_win_size))
                         for img in imgs_list]
+    parsed_imgs_list = [add_noise(img) / 255 for img in parsed_imgs_list]
     del imgs_list
 
     print('=' * 61, f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
@@ -76,12 +77,14 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
 
             # Choose image
             main_img = parsed_imgs_list[m_chosen_img_idx]
+            target_img = src_images[m_chosen_img_idx]
             # Get image 'window'
             cropped_img = main_img[m_row:m_row+win_size, m_column:m_column+win_size]
+            cropped_src_img = target_img[m_row:m_row+win_size, m_column:m_column+win_size]
 
             # Define target value and the noised data
-            target = cropped_img[half_win_size, half_win_size]
-            data = add_noise(cropped_img).flatten()
+            target = cropped_src_img[half_win_size, half_win_size]
+            data = cropped_img.flatten()
 
             # Adding data for a special list in certan row
             index_in_total_data = counter % dump_to_file
