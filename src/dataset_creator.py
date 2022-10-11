@@ -46,7 +46,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     # Adding borders for each image
     src_images = [np.array(add_borders(img, half_win_size))
                         for img in imgs_list]
-    parsed_imgs_list = [add_noise(img) / 255 for img in parsed_imgs_list]
+    parsed_imgs_list = [add_noise(img) / 255 for img in src_images]
     del imgs_list
 
     print('=' * 61, f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
