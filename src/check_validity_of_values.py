@@ -12,7 +12,7 @@ def assign_name_to_dataset(dataset_name, win_size, step) -> str:
     Return the valid dataset_name
     """
     if dataset_name is None:
-        dataset_name = f"data_win{win_size}_step{step}.csv"
+        dataset_name = f"data_w{win_size}_s{step}.csv"
     else:
         assert isinstance(dataset_name, str), "Dataset name shuold be str"
         assert len(dataset_name) > 0, "Name shouldn't be empty line"
