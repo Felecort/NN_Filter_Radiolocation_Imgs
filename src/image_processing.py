@@ -49,6 +49,7 @@ def add_noise(img, scale=0.2707) -> np.array:
     noise = np.random.rayleigh(scale=scale, size=size)
     # Add noise
     noised_img = img + img * noise
+    noised_img = np.where(noised_img <= 255, noised_img, 255)
     return noised_img
 
 
