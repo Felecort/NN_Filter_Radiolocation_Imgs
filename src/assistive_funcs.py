@@ -6,7 +6,7 @@ from torch import Tensor, no_grad
 import pathlib
 from tqdm import tqdm
 from image_processing import add_borders
-
+from skimage.metrics import structural_similarity as ssim
 
 def delta_time() -> 'function':
     start = time()
@@ -23,7 +23,7 @@ def convert_to_grayscale(path_to_images):
     for image_name in images_list:
         path = f"{path_to_images}\{image_name}"
         img = ImageOps.grayscale(Image.open(path))
-        img.save(f"{root_folder}\gray_images\gs_{image_name}")
+        img.save(f"{root_folder}\gray_images\{image_name}")
 
 
 def get_batch(y, img, left, win_size, device):
@@ -35,8 +35,6 @@ def get_batch(y, img, left, win_size, device):
         for i, x in enumerate(range(304, 608)):
             res[i] = img[y:win_size+y, x:x+win_size].flatten()
     return Tensor(res).float().to(device=device)
-                    
-    
 
 
 def filtering_image(model, path_to_image, image_name, win_size, device):
@@ -58,3 +56,13 @@ def filtering_image(model, path_to_image, image_name, win_size, device):
     out = out.astype(np.uint8)
     out = Image.fromarray(out)
     out.save(out_path)
+    
+    
+def check_ssim(filtered_images, genuine_images):
+    filtered_imgs_list = listdir(filtered_images)
+    for image_name in filtered_imgs_list:
+        filtered_img = np.array(Image.open(f"{filtered_images}\{image_name}"))
+        genuine_img = np.array(Image.open(f"{genuine_images}\{image_name}"))
+        ssim_metric = ssim(filtered_img, genuine_img)
+        print(f"{image_name}, SSIM = {ssim_metric}")
+        
