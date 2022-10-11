@@ -48,7 +48,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
                         for img in imgs_list]
     del imgs_list
 
-    print(f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
+    print('=' * 61, f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
 
     with open(f"{datasets_path}\{dataset_name}", "w", newline='') as f:
 
@@ -106,7 +106,8 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
         # Dump to file rows, that weren't be added in the end
         writer_obj.writerows(dumped_data[:index_in_total_data])
 
-    print(f"""\rDataset created.               
+    print(f"""\r=============================================================
+              \rDataset created.               
               \rTotal spent time = {start_time():.2f}s
               \rTotal samples = {total_length}
               \rDataset name '{dataset_name}'""")
