@@ -5,15 +5,15 @@ from torch import Tensor
 
 # Paths
 main_data_path = Path("../data")
-scv_data = main_data_path / "csv_files"  # scv_data
+scv_folder = main_data_path / "csv_files"  # scv_folder
 img_path = main_data_path / "images"
 
 
 class _CustomDataLoader:
-    def __init__(self, *, scv_data, dataset_name, batch_size, train_size, is_train):
-        self.scv_data = scv_data
+    def __init__(self, *, scv_folder, dataset_name, batch_size, train_size, is_train):
+        self.scv_folder = scv_folder
         self.dataset_name = dataset_name
-        self.main_path = scv_data / dataset_name
+        self.main_path = scv_folder / dataset_name
 
         self.batch_size = batch_size
         self.train_size = train_size
@@ -70,13 +70,13 @@ class _CustomDataLoader:
         return x, y
 
 
-def get_train_test_data(*, scv_data, dataset_name, batch_size, train_size):
-    train = _CustomDataLoader(scv_data=scv_data,
+def get_train_test_data(*, scv_folder, dataset_name, batch_size, train_size):
+    train = _CustomDataLoader(scv_folder=scv_folder,
                               dataset_name=dataset_name,
                               batch_size=batch_size,
                               train_size=train_size,
                               is_train=True)
-    test = _CustomDataLoader(scv_data=scv_data,
+    test = _CustomDataLoader(scv_folder=scv_folder,
                              dataset_name=dataset_name,
                              batch_size=batch_size,
                              train_size=train_size,
