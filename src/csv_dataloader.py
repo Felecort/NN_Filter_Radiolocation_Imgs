@@ -70,7 +70,7 @@ class _CustomDataLoader:
         return x, y
 
 
-def get_train_test(*, scv_data, dataset_name, batch_size, train_size):
+def get_train_test_data(*, scv_data, dataset_name, batch_size, train_size):
     train = _CustomDataLoader(scv_data=scv_data,
                               dataset_name=dataset_name,
                               batch_size=batch_size,
