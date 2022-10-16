@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 from math import floor
 from torch import Tensor
-
+from numpy import newaxis
 # Paths
 main_data_path = Path("../data")
 scv_folder = main_data_path / "csv_files"  # scv_folder
@@ -65,8 +65,8 @@ class _CustomDataLoader:
         x = raw_chunk.drop(columns=raw_chunk.shape[1] - 1)
         y = raw_chunk[raw_chunk.shape[1] - 1]
 
-        x = Tensor(x.to_numpy())
-        y = Tensor(y.to_numpy())
+        x = Tensor(x.to_numpy()).float()
+        y = Tensor(y.to_numpy()[:, newaxis]).float()
         return x, y
 
 
