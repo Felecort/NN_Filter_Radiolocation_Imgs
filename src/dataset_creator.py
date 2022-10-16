@@ -8,8 +8,8 @@ from assistive_funcs import *
 
 
 def generate_csv(*, win_size, dump_to_file=1000, step=1,
-                 img_path=r"..\datasets\images",
-                 datasets_path=r"..\datasets\csv_files",
+                 img_path=r"..\data\images",
+                 datasets_path=r"..\data\csv_files",
                  dataset_name=None,
                  force_create_dataset=False) -> None:
     """
