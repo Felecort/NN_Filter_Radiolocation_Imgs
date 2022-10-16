@@ -64,4 +64,4 @@ def check_ssim(filtered_images, genuine_images) -> None:
         filtered_img = np.array(Image.open(f"{filtered_images}\{image_name}"))
         genuine_img = np.array(Image.open(f"{genuine_images}\{image_name}"))
         ssim_metric = ssim(filtered_img, genuine_img)
-        print(f"{image_name}, SSIM = {ssim_metric}")
+        print(f"{image_name}, SSIM = {ssim_metric:.2f}")
