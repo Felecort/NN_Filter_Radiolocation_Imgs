@@ -7,10 +7,6 @@ import pathlib
 from tqdm import tqdm
 from image_processing import add_borders
 from skimage.metrics import structural_similarity as ssim
-from pathlib import Path
-
-
-main_data_path = Path("../data/filtered_imgs")
 
 
 def delta_time() -> 'function':
@@ -31,16 +27,16 @@ def convert_to_grayscale(path_to_images) -> None:
         img.save(f"{root_folder}\gray_images\{image_name}")
 
 
-def filtering_image(model, path_to_image, image_name, win_size, device, slices=0) -> None:
+def filtering_image(model, out_path, path_to_image, image_name, win_size, device, slices=0) -> None:
 
-    out_path = main_data_path / image_name
+    out_path = out_path / image_name
     path = path_to_image / image_name
 
     img = Image.open(path)
     shape = img.size
 
     img = np.array(add_borders(img, win_size)) / 255
-    out_image = np.empty(shape)
+    out_image = np.empty((shape[1], shape[0]))
 
     model.eval()
     with no_grad():
