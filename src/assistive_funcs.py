@@ -65,3 +65,12 @@ def check_ssim(filtered_images, genuine_images) -> None:
         genuine_img = np.array(Image.open(f"{genuine_images}\{image_name}"))
         ssim_metric = ssim(filtered_img, genuine_img)
         print(f"{image_name}, SSIM = {ssim_metric:.2f}")
+
+def get_dataset_name(win_size, step, path_to_csv):
+    datasets_list = listdir(path_to_csv)
+    part_of_name = f"W{win_size}_S{step}_L"
+    for name in datasets_list:
+        if part_of_name in name:
+            return name
+    raise Exception('Dataset absence')
+    
