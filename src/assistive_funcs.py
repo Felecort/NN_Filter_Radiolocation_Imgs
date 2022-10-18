@@ -54,13 +54,12 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
         out.save(out_path)
 
 
-def check_ssim(filtered_images, genuine_images) -> None:
-    filtered_imgs_list = listdir(filtered_images)
-    for image_name in filtered_imgs_list:
-        filtered_img = np.array(Image.open(f"{filtered_images}\{image_name}"))
-        genuine_img = np.array(Image.open(f"{genuine_images}\{image_name}"))
-        ssim_metric = ssim(filtered_img, genuine_img)
-        print(f"{image_name}, SSIM = {ssim_metric:.2f}")
+def check_ssim(filtered_images, genuine_images, image_name) -> None:
+    filtered_img = np.array(ImageOps.grayscale(Image.open(filtered_images / image_name)))
+    genuine_img = np.array(ImageOps.grayscale(Image.open(genuine_images / image_name)))
+    ssim_metric = ssim(filtered_img, genuine_img)
+    print(f"{image_name}, SSIM = {ssim_metric:.3f}")
+
 
 def get_dataset_name(win_size, step, path_to_csv):
     datasets_list = listdir(path_to_csv)
