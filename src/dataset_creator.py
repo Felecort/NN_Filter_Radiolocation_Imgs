@@ -2,6 +2,7 @@ import numpy as np
 import csv
 from random import randint
 from os import listdir
+from PIL import ImageOps, Image
 from image_processing import *
 from check_validity_of_values import *
 from assistive_funcs import *
@@ -46,7 +47,14 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     # Adding borders for each image
     src_images = [np.array(add_borders(img, half_win_size))
                         for img in imgs_list]
-    parsed_imgs_list = [add_noise(img) / 255 for img in src_images]
+    parsed_imgs_list = [add_noise(img) for img in src_images]
+    
+    for i, noised_image in enumerate(parsed_imgs_list):
+        img = Image.fromarray(noised_image).convert("L")
+        img.save(f"{img_path}\\{i}_noised_image.jpg")
+        noised_image /= 255
+    
+    
     del imgs_list
 
     print('=' * 61, f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
