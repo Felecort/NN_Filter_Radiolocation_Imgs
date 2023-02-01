@@ -7,7 +7,9 @@ import pathlib
 from tqdm import tqdm
 from image_processing import add_borders
 from skimage.metrics import structural_similarity as ssim
-
+# from __future__ import division
+# from scipy import ndimage
+from scipy import signal
 
 def delta_time() -> 'function':
     start = time()
@@ -68,4 +70,43 @@ def get_dataset_name(win_size, step, path_to_csv):
         if part_of_name in name:
             return name
     raise Exception('Dataset absence')
+
+
+def check_gmsd(filtered_images, genuine_images, image_name, rescale=True, returnMap=False):
+
+    vref = np.array(ImageOps.grayscale(Image.open(filtered_images / image_name)))
+    vcmp = np.array(ImageOps.grayscale(Image.open(genuine_images / image_name)))
+
+    if rescale:
+        scl = (255.0 / vref.max())
+    else:
+        scl = np.float32(1.0)
+
+    T = 170.0
+    dwn = 2
+    dx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]]) / 3.0
+    dy = dx.T
+
+    ukrn = np.ones((2, 2)) / 4.0
+    aveY1 = signal.convolve2d(scl * vref, ukrn, mode='same', boundary='symm')
+    aveY2 = signal.convolve2d(scl * vcmp, ukrn, mode='same', boundary='symm')
+    Y1 = aveY1[0::dwn, 0::dwn]
+    Y2 = aveY2[0::dwn, 0::dwn]
+
+    IxY1 = signal.convolve2d(Y1, dx, mode='same', boundary='symm')
+    IyY1 = signal.convolve2d(Y1, dy, mode='same', boundary='symm')
+    grdMap1 = np.sqrt(IxY1**2 + IyY1**2)
+
+    IxY2 = signal.convolve2d(Y2, dx, mode='same', boundary='symm')
+    IyY2 = signal.convolve2d(Y2, dy, mode='same', boundary='symm')
+    grdMap2 = np.sqrt(IxY2**2 + IyY2**2)
+
+    quality_map = (2*grdMap1*grdMap2 + T) / (grdMap1**2 + grdMap2**2 + T)
+    score = np.std(quality_map)
+
+    # if returnMap:
+    #     return (score, quality_map)
+    # else:
+    #     return score
+    print(f"{image_name}, GMSD = {score:.3f}")
     
