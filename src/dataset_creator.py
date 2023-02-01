@@ -11,6 +11,7 @@ from assistive_funcs import *
 def generate_csv(*, win_size, dump_to_file=1000, step=1,
                  img_path=r"..\data\images",
                  datasets_path=r"..\data\csv_files",
+                 noise_imgs_path=r"..\data\FC_imgs_with_noise",
                  dataset_name=None,
                  force_create_dataset=False) -> None:
     """
@@ -25,8 +26,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     half_win_size = win_size // 2
     win_square = win_size ** 2
 
-    list_of_img_names = listdir(img_path)
-
+    list_of_img_names = sorted(listdir(img_path))
     # Array that contains rows with flatten cropped images
     dumped_data = np.empty((dump_to_file, win_square + 1), dtype=float)
 
@@ -49,9 +49,11 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
                         for img in imgs_list]
     parsed_imgs_list = [add_noise(img) for img in src_images]
     
-    for i, noised_image in enumerate(parsed_imgs_list):
+    for name, noised_image in zip(list_of_img_names, parsed_imgs_list):
         img = Image.fromarray(noised_image).convert("L")
-        img.save(f"{img_path}\\{i}_noised_image.jpg")
+        img = img.crop((half_win_size, half_win_size,
+                        img.size[0] - half_win_size, img.size[1] - half_win_size))
+        img.save(f"{noise_imgs_path}\\{name}")
         noised_image /= 255
     
     
