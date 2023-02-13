@@ -3,13 +3,15 @@ from pathlib import Path
 from math import floor
 from torch import Tensor
 from numpy import newaxis
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, Dataset
 # Paths
 main_data_path = Path("../data")
 scv_folder = main_data_path / "csv_files"  # scv_folder
 img_path = main_data_path / "images"
 
 
-class _CustomDataLoader:
+class _CustomBigDataLoader:
     def __init__(self, *, scv_folder, dataset_name, batch_size, train_size, is_train):
         self.scv_folder = scv_folder
         self.dataset_name = dataset_name
@@ -70,15 +72,41 @@ class _CustomDataLoader:
         return x, y
 
 
-def get_train_test_data(*, scv_folder, dataset_name, batch_size, train_size):
-    train = _CustomDataLoader(scv_folder=scv_folder,
+def get_train_test_big_data(*, scv_folder, dataset_name, batch_size, train_size):
+    train = _CustomBigDataLoader(scv_folder=scv_folder,
                               dataset_name=dataset_name,
                               batch_size=batch_size,
                               train_size=train_size,
                               is_train=True)
-    test = _CustomDataLoader(scv_folder=scv_folder,
+    test = _CustomBigDataLoader(scv_folder=scv_folder,
                              dataset_name=dataset_name,
                              batch_size=batch_size,
                              train_size=train_size,
                              is_train=False)
     return train, test
+
+
+class _CustomSmallDataLoader(Dataset):
+    def __init__(self, x, y) -> None:
+        super().__init__()
+        self.x = x
+        self.y = y
+    
+    def __getitem__(self, index):
+        return self.x[index], self.y[index]
+    
+    def __len__(self):
+        return len(self.x)
+
+
+def get_train_test_small_data(*, scv_folder, dataset_name, batch_size, train_size):
+    main_path = scv_folder / dataset_name
+    data = pd.read_csv(main_path, header=None)
+    y = data[data.shape[1] - 1].to_numpy()
+    x = data.iloc[:, 0:data.shape[1]-1].to_numpy()
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=1-train_size, shuffle=False)
+    train_data = DataLoader(_CustomSmallDataLoader(X_train, y_train), batch_size=batch_size)
+    test_data = DataLoader(_CustomSmallDataLoader(X_test, y_test), batch_size=batch_size)
+    return train_data, test_data
+    
+    
