@@ -89,8 +89,8 @@ def get_train_test_big_data(*, scv_folder, dataset_name, batch_size, train_size)
 class _CustomSmallDataLoader(Dataset):
     def __init__(self, x, y) -> None:
         super().__init__()
-        self.x = x
-        self.y = y
+        self.x = Tensor(x).float()
+        self.y = Tensor(y[:, newaxis]).float()
     
     def __getitem__(self, index):
         return self.x[index], self.y[index]
