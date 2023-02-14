@@ -13,7 +13,8 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
                  datasets_path=r"..\data\csv_files",
                  noise_imgs_path=r"..\data\FC_imgs_with_noise",
                  dataset_name=None,
-                 force_create_dataset=False) -> None:
+                 force_create_dataset=False,
+                 classification=False) -> None:
     """
     This function create dataset using certan
     window and step on the images with borders.
@@ -54,14 +55,19 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
         img = img.crop((half_win_size, half_win_size,
                         img.size[0] - half_win_size, img.size[1] - half_win_size))
         img.save(f"{noise_imgs_path}\\{name}")
-        noised_image /= 255
+        if not classification:
+            noised_image /= 255
     
     
     del imgs_list
 
     print('=' * 61, f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
 
-    with open(f"{datasets_path}\{dataset_name}", "w", newline='') as f:
+    if classification:
+        path_to_dataset = f"{datasets_path}\classification\{dataset_name}"
+    else:
+        path_to_dataset = f"{datasets_path}\{dataset_name}"
+    with open(path_to_dataset, "w", newline='') as f:
 
         # Set params to csv writter
         csv.register_dialect('datasets_creator', delimiter=',', quoting=csv.QUOTE_NONE, skipinitialspace=False)
