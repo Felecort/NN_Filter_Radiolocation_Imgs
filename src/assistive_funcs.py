@@ -63,8 +63,11 @@ def check_ssim(filtered_images, genuine_images, image_name) -> None:
     print(f"{image_name}, SSIM = {ssim_metric:.3f}")
 
 
-def get_dataset_name(win_size, step, path_to_csv):
-    datasets_list = listdir(path_to_csv)
+def get_dataset_name(win_size, step, path_to_csv, classification=False):
+    if classification:
+        datasets_list = listdir(path_to_csv / "classification")
+    else:
+        datasets_list = listdir(path_to_csv)
     part_of_name = f"W{win_size}_S{step}_L"
     for name in datasets_list:
         if part_of_name in name:
