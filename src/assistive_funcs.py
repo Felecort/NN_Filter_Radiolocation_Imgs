@@ -71,7 +71,8 @@ def get_dataset_name(win_size, step, path_to_csv, classification=False):
     part_of_name = f"W{win_size}_S{step}_L"
     for name in datasets_list:
         if part_of_name in name:
-            return name
+            if classification:
+                return f"classification\{name}"
     raise Exception('Dataset absence')
 
 
