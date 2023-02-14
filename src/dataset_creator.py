@@ -48,7 +48,10 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     # Adding borders for each image
     src_images = [np.array(add_borders(img, half_win_size))
                         for img in imgs_list]
-    parsed_imgs_list = [add_noise(img) for img in src_images]
+    if classification:
+        parsed_imgs_list = [np.around(add_noise(img)) for img in src_images]
+    else:
+        parsed_imgs_list = [add_noise(img) for img in src_images]
     
     for name, noised_image in zip(list_of_img_names, parsed_imgs_list):
         img = Image.fromarray(noised_image).convert("L")
@@ -99,7 +102,10 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
             cropped_src_img = target_img[m_row:m_row+win_size, m_column:m_column+win_size]
 
             # Define target value and the noised data
-            target = cropped_src_img[half_win_size, half_win_size] / 255
+            if classification:
+                target = cropped_src_img[half_win_size, half_win_size]
+            else:
+                target = cropped_src_img[half_win_size, half_win_size] / 255
             data = cropped_img.flatten()
 
             # Adding data for a special list in certan row
