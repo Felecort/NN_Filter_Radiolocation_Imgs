@@ -103,7 +103,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
 
             # Define target value and the noised data
             if classification:
-                target = cropped_src_img[half_win_size, half_win_size]
+                target = int(cropped_src_img[half_win_size, half_win_size])
             else:
                 target = cropped_src_img[half_win_size, half_win_size] / 255
             data = cropped_img.flatten()
