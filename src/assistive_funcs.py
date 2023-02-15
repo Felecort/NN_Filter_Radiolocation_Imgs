@@ -51,7 +51,7 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                 
                 res = Tensor(raw_res).float().to(device=device)
                 if classification:
-                    res = torch.argmax(model(res).to("cpu"), dim=1)
+                    res = torch.argmax(model(res).to("cpu"), dim=1) / 255
                     out_image[y] = np.squeeze(np.array(res))
                 else:
                     out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
