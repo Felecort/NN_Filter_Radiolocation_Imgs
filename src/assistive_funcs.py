@@ -3,6 +3,7 @@ from os import listdir
 from PIL import Image, ImageOps
 import numpy as np
 from torch import Tensor, no_grad
+import torch
 import pathlib
 from tqdm import tqdm
 from image_processing import add_borders
@@ -29,7 +30,7 @@ def convert_to_grayscale(path_to_images) -> None:
         img.save(f"{root_folder}\gray_images\{image_name}")
 
 
-def filtering_image(model, out_path, path_to_image, image_name, win_size, device, slices=0) -> None:
+def filtering_image(model, out_path, path_to_image, image_name, win_size, device, slices=0, classification=False) -> None:
 
     out_path = out_path / image_name
     path = path_to_image / image_name
@@ -47,8 +48,13 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                 raw_res = np.empty((shape[0], win_size ** 2))
                 for x in range(shape[0]):
                     raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
+                
                 res = Tensor(raw_res).float().to(device=device)
-                out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
+                if classification:
+                    res = torch.argmax(model(res).to("cpu"), dim=1)
+                    out_image[y] = np.squeeze(np.array(res))
+                else:
+                    out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
         out_image *= 255
         out = np.where(out_image >= 255, 255, out_image)
         out = out.astype(np.uint8)
@@ -56,11 +62,15 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
         out.save(out_path)
 
 
-def check_ssim(filtered_images, genuine_images, image_name) -> None:
+
+
+def check_ssim(filtered_images, genuine_images, image_name, print_metric=False) -> None:
     filtered_img = np.array(ImageOps.grayscale(Image.open(filtered_images / image_name)))
     genuine_img = np.array(ImageOps.grayscale(Image.open(genuine_images / image_name)))
     ssim_metric = ssim(filtered_img, genuine_img)
-    print(f"{image_name}, SSIM = {ssim_metric:.3f}")
+    if print_metric:
+        print(f"{image_name}, SSIM = {ssim_metric:.3f}")
+    return ssim_metric
 
 
 def get_dataset_name(win_size, step, path_to_csv, classification=False):
@@ -78,7 +88,7 @@ def get_dataset_name(win_size, step, path_to_csv, classification=False):
     raise Exception('Dataset absence')
 
 
-def check_gmsd(filtered_images, genuine_images, image_name, rescale=True, returnMap=False):
+def check_gmsd(filtered_images, genuine_images, image_name, rescale=True, returnMap=False, print_metric=False):
 
     vref = np.array(ImageOps.grayscale(Image.open(filtered_images / image_name)))
     vcmp = np.array(ImageOps.grayscale(Image.open(genuine_images / image_name)))
@@ -114,5 +124,7 @@ def check_gmsd(filtered_images, genuine_images, image_name, rescale=True, return
     #     return (score, quality_map)
     # else:
     #     return score
-    print(f"{image_name}, GMSD = {score:.3f}")
+    if print_metric:
+        print(f"{image_name}, GMSD = {score:.3f}")
+    return score
     
