@@ -38,7 +38,10 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
     img = Image.open(path)
     shape = img.size
 
-    img = np.array(add_borders(img, win_size // 2)) / 255
+    if not classification:
+        img = np.array(add_borders(img, win_size // 2)) / 255
+    else:
+        img = np.array(add_borders(img, win_size // 2))
     out_image = np.empty((shape[1], shape[0]))
 
     model.eval()
