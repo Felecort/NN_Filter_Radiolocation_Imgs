@@ -50,18 +50,18 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                     raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
                 
                 res = Tensor(raw_res).float().to(device=device)
-                if classification:
-                    res = torch.argmax(model(res).to("cpu"), dim=1) / 255
-                    out_image[y] = np.squeeze(np.array(res))
-                else:
-                    out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
-        out_image *= 255
+                # if classification:
+                    # res = torch.argmax(model(res).to("cpu"), dim=1) / 255
+                    # out_image[y] = np.squeeze(np.array(res))
+                # else:
+                    # out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
+                out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
+        if not classification:
+            out_image *= 255
         out = np.where(out_image >= 255, 255, out_image)
         out = out.astype(np.uint8)
         out = Image.fromarray(out)
         out.save(out_path)
-
-
 
 
 def check_ssim(filtered_images, genuine_images, image_name, print_metric=False) -> None:
