@@ -99,14 +99,17 @@ class _CustomSmallDataLoader(Dataset):
         return len(self.x)
 
 
-def get_train_test_small_data(*, scv_folder, dataset_name, batch_size, train_size):
+def get_train_test_small_data(*, scv_folder, dataset_name, batch_size, train_size=0.8, split=True):
     main_path = scv_folder / dataset_name
     data = pd.read_csv(main_path, header=None)
     y = data[data.shape[1] - 1].to_numpy()
     x = data.iloc[:, 0:data.shape[1]-1].to_numpy()
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=1-train_size, shuffle=False)
-    train_data = DataLoader(_CustomSmallDataLoader(X_train, y_train), batch_size=batch_size)
-    test_data = DataLoader(_CustomSmallDataLoader(X_test, y_test), batch_size=batch_size)
-    return train_data, test_data
+    if split:
+        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=1-train_size, shuffle=False)
+        train_data = DataLoader(_CustomSmallDataLoader(X_train, y_train), batch_size=batch_size)
+        test_data = DataLoader(_CustomSmallDataLoader(X_test, y_test), batch_size=batch_size)
+        return train_data, test_data
+    else:
+        return DataLoader(_CustomSmallDataLoader(x, y), batch_size=batch_size)
     
     
