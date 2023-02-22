@@ -52,7 +52,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
         parsed_imgs_list = [np.around(add_noise(img)) for img in src_images]
     else:
         parsed_imgs_list = [add_noise(img) for img in src_images]
-    
+
     for name, noised_image in zip(list_of_img_names, parsed_imgs_list):
         img = Image.fromarray(noised_image).convert("L")
         img = img.crop((half_win_size, half_win_size,
@@ -60,8 +60,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
         img.save(f"{noise_imgs_path}\\{name}")
         if not classification:
             noised_image /= 255
-    
-    
+
     del imgs_list
 
     print('=' * 61, f"\nBorders were added, indexes were created. Passed time = {start_time():.2f}s")
