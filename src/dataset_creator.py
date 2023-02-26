@@ -26,6 +26,7 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     counter = 0
     half_win_size = win_size // 2
     win_square = win_size ** 2
+    total_errors = 0
 
     list_of_img_names = sorted(listdir(img_path))
     # Array that contains rows with flatten cropped images
@@ -48,18 +49,15 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
     # Adding borders for each image
     src_images = [np.array(add_borders(img, half_win_size))
                         for img in imgs_list]
-    if classification:
-        parsed_imgs_list = [np.around(add_noise(img)) for img in src_images]
-    else:
-        parsed_imgs_list = [add_noise(img) for img in src_images]
+    
+    parsed_imgs_list = [np.around(add_noise(img)) for img in src_images]
 
     for name, noised_image in zip(list_of_img_names, parsed_imgs_list):
         img = Image.fromarray(noised_image).convert("L")
         img = img.crop((half_win_size, half_win_size,
                         img.size[0] - half_win_size, img.size[1] - half_win_size))
         img.save(f"{noise_imgs_path}\\{name}")
-        if not classification:
-            noised_image /= 255
+        img = np.array(img)
 
     del imgs_list
 
@@ -100,17 +98,19 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
             cropped_img = main_img[m_row:m_row+win_size, m_column:m_column+win_size]
             cropped_src_img = target_img[m_row:m_row+win_size, m_column:m_column+win_size]
 
-            # Define target value and the noised data
-            if classification:
-                target = int(cropped_src_img[half_win_size, half_win_size])
-            else:
-                target = cropped_src_img[half_win_size, half_win_size] / 255
-            data = cropped_img.flatten()
-
-            # Adding data for a special list in certan row
             index_in_total_data = counter % dump_to_file
-            dumped_data[index_in_total_data][:win_square] = data
-            dumped_data[index_in_total_data][-1] = target
+            # Define target value and the noised data
+            try:
+                target = cropped_src_img[half_win_size, half_win_size]
+                data = cropped_img.flatten()
+
+                # Adding data for a special list in certan row
+                dumped_data[index_in_total_data][:win_square] = data
+                dumped_data[index_in_total_data][-1] = target
+            except (IndexError, ValueError) as ierr:
+                total_errors += 1
+                # print(ierr)
+                pass
 
             # Dump to file
             if index_in_total_data == 0:
@@ -134,4 +134,77 @@ def generate_csv(*, win_size, dump_to_file=1000, step=1,
               \rDataset created.               
               \rTotal spent time = {start_time():.2f}s
               \rTotal samples = {total_length}
-              \rDataset name '{dataset_name}'""")
+              \rDataset name '{dataset_name}'
+              \rErrors: {total_errors}""")
+
+
+
+def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
+                 img_path=r"..\data\images",
+                 datasets_path=r"..\data\csv_files",
+                 noise_imgs_path=r"..\data\FC_imgs_with_noise",
+                 dataset_name=None,
+                 force_create_dataset=False,
+                 classification=False) -> None:
+    check_valid_win_size(win_size)
+    need_to_add_name = check_dataset_name(dataset_name)
+    start_time = delta_time()
+
+    # Define constants
+    counter = 0
+    half_win_size = win_size // 2
+    win_square = win_size ** 2
+    
+    list_of_img_names = sorted(listdir(img_path))
+    
+    imgs_list = load_images(img_path, list_of_img_names)
+    total_images = len(imgs_list)
+    
+    if need_to_add_name:
+        dataset_name = f"W{win_size}_S{step}.csv"
+    if not force_create_dataset:
+        check_existing_datasets(dataset_name, datasets_path)
+
+    if classification:
+        path_to_dataset = f"{datasets_path}\classification\{dataset_name}"
+    else:
+        path_to_dataset = f"{datasets_path}\{dataset_name}"
+        
+    dumped_data = np.empty((dump_to_file, win_square + 1), dtype=int)
+    with open(path_to_dataset, "w", newline='') as f:
+        # Set params to csv writter
+        csv.register_dialect('datasets_creator', delimiter=',', quoting=csv.QUOTE_NONE, skipinitialspace=False)
+        writer_obj = csv.writer(f, dialect="datasets_creator")
+        
+        for image_counter, (img, name) in enumerate(zip(imgs_list, list_of_img_names), start=1):
+            original_img_b = np.array(add_borders(img, half_win_size))
+            noised_img_b = np.around(add_noise(original_img_b))
+            
+            img = Image.fromarray(noised_img_b).convert("L")
+            img = img.crop((half_win_size, half_win_size, img.size[0] - half_win_size, img.size[1] - half_win_size))
+            img.save(f"{noise_imgs_path}\\{name}")
+            height, width = noised_img_b.shape
+            for y in range(0, height - win_size, step):
+                for x in range(0, width - win_size, step):
+                    data_slice = noised_img_b[y:y+win_size, x:x+win_size].flatten()
+                    target = original_img_b[y + half_win_size, x + half_win_size]
+                    dumped_data[counter][:win_square] = data_slice
+                    dumped_data[counter][-1] = target
+                    
+                    counter += 1
+                    if counter % dump_to_file == 0:
+                        writer_obj.writerows(dumped_data)
+                        print(f"\rTime left = {start_time():.2f}s, {image_counter}/{total_images}", end="")
+                        counter = 0
+                        # dumped_data = np.empty((dump_to_file, win_square + 1), dtype=int)
+        writer_obj.writerows(dumped_data[:counter])
+
+
+if __name__ == "__main__":
+    generate_unshuffled_csv(win_size=7, dump_to_file=1000, step=5,
+                 img_path=r"D:\Projects\PythonProjects\NIR\data\large_data\train_images",
+                 datasets_path=r"D:\Projects\PythonProjects\NIR\data\large_data\csv_files",
+                 noise_imgs_path=r"D:\Projects\PythonProjects\NIR\data\large_data\train_images_noised",
+                 dataset_name=None,
+                 force_create_dataset=1,
+                 classification=False)
