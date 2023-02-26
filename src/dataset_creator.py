@@ -148,10 +148,10 @@ def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
                  classification=False) -> None:
     check_valid_win_size(win_size)
     need_to_add_name = check_dataset_name(dataset_name)
-    start_time = delta_time()
 
     # Define constants
     counter = 0
+    total_samples = 0
     half_win_size = win_size // 2
     win_square = win_size ** 2
     
@@ -193,11 +193,15 @@ def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
                     
                     counter += 1
                     if counter % dump_to_file == 0:
-                        writer_obj.writerows(dumped_data)
-                        print(f"\rTime left = {start_time():.2f}s, {image_counter}/{total_images}", end="")
+                        total_samples += counter
                         counter = 0
+                        print(f"\rimg: {image_counter}/{total_images}", end="")
+                        
+                        writer_obj.writerows(dumped_data)
                         # dumped_data = np.empty((dump_to_file, win_square + 1), dtype=int)
         writer_obj.writerows(dumped_data[:counter])
+        total_samples += counter
+        print(f"\nSamples: {total_samples}")
 
 
 if __name__ == "__main__":
