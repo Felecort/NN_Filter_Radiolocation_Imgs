@@ -183,7 +183,9 @@ def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
             img = Image.fromarray(noised_img_b).convert("L")
             img = img.crop((half_win_size, half_win_size, img.size[0] - half_win_size, img.size[1] - half_win_size))
             img.save(f"{noise_imgs_path}\\{name}")
+            
             height, width = noised_img_b.shape
+            
             for y in range(0, height - win_size, step):
                 for x in range(0, width - win_size, step):
                     data_slice = noised_img_b[y:y+win_size, x:x+win_size].flatten()
