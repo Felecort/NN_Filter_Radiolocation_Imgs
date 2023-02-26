@@ -110,6 +110,6 @@ def get_train_test_small_data(*, scv_folder, dataset_name, batch_size, train_siz
         test_data = DataLoader(_CustomSmallDataLoader(X_test, y_test), batch_size=batch_size)
         return train_data, test_data
     else:
-        return DataLoader(_CustomSmallDataLoader(x, y), batch_size=batch_size)
+        return DataLoader(_CustomSmallDataLoader(x, y), batch_size=batch_size, shuffle=True)
     
     
