@@ -4,5 +4,7 @@ data/FC_imgs_with_noise
 src/__pycache__
 tmp
 
+*.png
+*.jpg
 *.txt
 *.csv
