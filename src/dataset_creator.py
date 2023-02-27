@@ -179,7 +179,7 @@ def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
         for image_counter, (img, name) in enumerate(zip(imgs_list, list_of_img_names), start=1):
             original_img_b = np.array(add_borders(img, half_win_size))
             # noised_img_b = np.around(add_noise(original_img_b))
-            noised_img_b = (add_noise(original_img_b))
+            noised_img_b = add_noise(original_img_b)
             
             img = Image.fromarray(noised_img_b).convert("L")
             img = img.crop((half_win_size, half_win_size, img.size[0] - half_win_size, img.size[1] - half_win_size))
