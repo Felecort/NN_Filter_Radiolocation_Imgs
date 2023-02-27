@@ -170,7 +170,7 @@ def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
     else:
         path_to_dataset = f"{datasets_path}\{dataset_name}"
         
-    dumped_data = np.empty((dump_to_file, win_square + 1), dtype=int)
+    dumped_data = np.empty((dump_to_file, win_square + 1), dtype=float)
     with open(path_to_dataset, "w", newline='') as f:
         # Set params to csv writter
         csv.register_dialect('datasets_creator', delimiter=',', quoting=csv.QUOTE_NONE, skipinitialspace=False)
@@ -178,13 +178,17 @@ def generate_unshuffled_csv(*, win_size, dump_to_file=1000, step=1,
         
         for image_counter, (img, name) in enumerate(zip(imgs_list, list_of_img_names), start=1):
             original_img_b = np.array(add_borders(img, half_win_size))
-            noised_img_b = np.around(add_noise(original_img_b))
+            # noised_img_b = np.around(add_noise(original_img_b))
+            noised_img_b = (add_noise(original_img_b))
             
             img = Image.fromarray(noised_img_b).convert("L")
             img = img.crop((half_win_size, half_win_size, img.size[0] - half_win_size, img.size[1] - half_win_size))
             img.save(f"{noise_imgs_path}\\{name}")
             
             height, width = noised_img_b.shape
+            
+            original_img_b = original_img_b / 255
+            noised_img_b = noised_img_b / 255
             
             for y in range(0, height - win_size, step):
                 for x in range(0, width - win_size, step):
