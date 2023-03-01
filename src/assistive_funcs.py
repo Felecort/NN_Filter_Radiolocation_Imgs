@@ -54,7 +54,7 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                 for x in range(shape[0]):
                     raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
                 
-                res = Tensor(raw_res).float().to(device=device)
+                res = Tensor(raw_res).float().to(device=device) / 255
                 if classification:
                     res = model(res).to("cpu").argmax(axis=-1)
                     out_image[y] = np.squeeze(np.array(res))
