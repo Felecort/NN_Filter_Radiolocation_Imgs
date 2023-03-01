@@ -42,7 +42,7 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
         # img = np.array(add_borders(img, win_size // 2)) / 255
     # else:
     #     img = np.array(add_borders(img, win_size // 2))
-    img = np.array(add_borders(img, win_size // 2)) / 255
+    img = np.array(add_borders(img, win_size // 2))
     
     out_image = np.empty((shape[1], shape[0]))
 
@@ -54,7 +54,7 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                 for x in range(shape[0]):
                     raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
                 
-                res = Tensor(raw_res).float().to(device=device) / 255
+                res = Tensor(raw_res).float().to(device=device)
                 if classification:
                     res = model(res).to("cpu").argmax(axis=-1)
                     out_image[y] = np.squeeze(np.array(res))
@@ -62,7 +62,7 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                     out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
                 # out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
         if not classification:
-            out_image *= 255
+            out_image *= 1
         out = np.where(out_image >= 255, 255, out_image)
         out = out.astype(np.uint8)
         out = Image.fromarray(out)
