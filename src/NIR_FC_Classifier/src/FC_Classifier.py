@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[24]:
+# In[1]:
 
 
 # Data Handlers
@@ -75,7 +75,7 @@ if create_dataset:
                  force_create_dataset=1)
 
 
-# In[25]:
+# In[5]:
 
 
 test_img_names = listdir(p_test_images)
@@ -85,7 +85,7 @@ for name in test_img_names:
     Image.fromarray(noised_img.astype(np.uint8)).save(p_test_noised_images / name)
 
 
-# In[5]:
+# In[6]:
 
 
 class FCBlock(nn.Module):
@@ -108,7 +108,7 @@ class FCBlock(nn.Module):
         return self.fc_block(x)
 
 
-# In[6]:
+# In[7]:
 
 
 class DefaultModel(nn.Module):
@@ -132,13 +132,13 @@ class DefaultModel(nn.Module):
         return x
 
 
-# In[15]:
+# In[8]:
 
 
 class FitModel():
     def __init__(self, model, criterion, optimizer, scheduler,
                  p_scv_folder, train_dataset_name,
-                 batch_size, device, num_epoches):
+                 batch_size, device, num_epoches, normalize_data):
         # Model
         self.model = model
         self.criterion = criterion
@@ -148,6 +148,7 @@ class FitModel():
         # Params
         self.num_epoches = num_epoches
         self.batch_size = batch_size
+        self.normalize_data = normalize_data
         
         # Folders
         self.p_scv_folder = p_scv_folder
@@ -172,6 +173,8 @@ class FitModel():
         self.model.train()
         for data, targets in self.train_loader:
             data = data.to(device=self.device)
+            if self.normalize_data:
+                data /= 255
             targets = torch.Tensor(self.enc.transform(targets).toarray()).to(device=self.device)
 
             scores = self.model(data)
@@ -195,6 +198,8 @@ class FitModel():
             for data, targets in self.valid_loader:
                 
                 data = data.to(device=self.device)
+                if self.normalize_data:
+                    data /= 255
                 targets = torch.Tensor(self.enc.transform(targets).toarray()).to(device=self.device)
                 
                 # Forward
@@ -238,7 +243,7 @@ class FitModel():
         self.images_filtered = True
         images_names = listdir(p_test_noised_images)
         for name in images_names:
-            filtering_image(self.model, p_test_filtered_images, p_test_noised_images, name, win_size, self.device, classification=True)
+            filtering_image(self.model, p_test_filtered_images, p_test_noised_images, name, win_size, self.device, normalize_data=self.normalize_data)
         
     @staticmethod
     def _check_filtering(p_target_images, p_original_images):
@@ -263,50 +268,48 @@ class FitModel():
         
 
 
-# In[16]:
+# In[24]:
 
 
 # Hyperparameters 
 learning_rate = 0.1
-num_epoches = 9
+num_epoches = 13
 batch_size = 1024
-
-
-# In[17]:
+normalize_data = False
 
 
 model = DefaultModel(in_len=(win_size ** 2), out_len=256).to(device=device)
 criterion = nn.CrossEntropyLoss()
-
 optimizer = optim.NAdam(model.parameters(), lr=learning_rate)
-
-# scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
-scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 7, 14], gamma=0.1)
+scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 9, 12], gamma=0.1) # StepLR
 # scheduler = None
-
-
-# In[18]:
 
 
 fit_model = FitModel(model, criterion, optimizer, scheduler,
                      p_scv_folder, train_dataset_name,
-                     batch_size, device, num_epoches)
+                     batch_size, device, num_epoches,
+                     normalize_data)
+
+
+# In[25]:
+
+
 fit_model.fit()
-
-
-# In[19]:
-
-
-fit_model.plot_graph()
 
 
 # In[26]:
 
 
-fit_model.filtering_all_images()
+fit_model.plot_graph()
 
 
 # In[27]:
+
+
+fit_model.filtering_all_images()
+
+
+# In[28]:
 
 
 fit_model.check_metrics()
