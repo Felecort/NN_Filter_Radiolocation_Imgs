@@ -1,11 +1,12 @@
-data/csv_files
-data/FC_filtered_images
-data/FC_imgs_with_noise
-src/__pycache__
+
+test_filtered
+test_noised
+test_gscaled
+train_filtered
+train_noised
+train_gscaled
+__pycache__
 tmp
 
-*.png
-*.jpg
-*.txt
 *.csv
 *.zip
