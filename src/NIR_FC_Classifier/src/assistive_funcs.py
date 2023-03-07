@@ -30,7 +30,7 @@ def convert_to_grayscale(path_to_images) -> None:
         img.save(f"{root_folder}\gray_images\{image_name}")
 
 
-def filtering_image(model, out_path, path_to_image, image_name, win_size, device, slices=0, classification=False) -> None:
+def filtering_image(model, out_path, path_to_image, image_name, win_size, device, slices=0, normalize_data=True) -> None:
 
     out_path = out_path / image_name
     path = path_to_image / image_name
@@ -38,11 +38,9 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
     img = Image.open(path)
     shape = img.size
 
-    # if not classification:
-        # img = np.array(add_borders(img, win_size // 2)) / 255
-    # else:
-    #     img = np.array(add_borders(img, win_size // 2))
-    img = np.array(add_borders(img, win_size // 2))
+    img = np.array(add_borders(img, win_size // 2), dtype=np.float64)
+    if normalize_data:
+        img /= 255
     
     out_image = np.empty((shape[1], shape[0]))
 
@@ -55,14 +53,9 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
                     raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
                 
                 res = Tensor(raw_res).float().to(device=device)
-                if classification:
-                    res = model(res).to("cpu").argmax(axis=-1)
-                    out_image[y] = np.squeeze(np.array(res))
-                else:
-                    out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
-                # out_image[y] = np.squeeze(np.array(model(res).to("cpu")))
-        if not classification:
-            out_image *= 1
+                res = model(res).to("cpu").argmax(axis=-1)
+                out_image[y] = np.squeeze(np.array(res))
+
         out = np.where(out_image >= 255, 255, out_image)
         out = out.astype(np.uint8)
         out = Image.fromarray(out)
