@@ -5,8 +5,8 @@ test_gscaled
 train_filtered
 train_noised
 train_gscaled
+csv_files
 __pycache__
 tmp
 
-*.csv
 *.zip
