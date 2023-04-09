@@ -85,7 +85,7 @@ for name in test_img_names:
     Image.fromarray(noised_img.astype(np.uint8)).save(p_test_noised_images / name)
 
 
-# In[6]:
+# In[14]:
 
 
 class FCBlock(nn.Module):
@@ -95,20 +95,20 @@ class FCBlock(nn.Module):
             self.fc_block = nn.Sequential(
                 nn.Linear(in_len, out_len),
                 nn.Dropout(p_dropout),
-                nn.Tanh(),
+                nn.ReLU(),
             )
         else:
             self.fc_block = nn.Sequential(
                 nn.Linear(in_len, out_len),
                 nn.BatchNorm1d(out_len),
-                nn.Tanh(),
+                nn.ReLU(),
             )
     
     def forward(self, x):
         return self.fc_block(x)
 
 
-# In[7]:
+# In[15]:
 
 
 class DefaultModel(nn.Module):
@@ -118,13 +118,11 @@ class DefaultModel(nn.Module):
         triple_in_len = in_len * 3
 
         self.structure = nn.Sequential(
-            FCBlock(in_len, in_len,               p_dropout=0),
             FCBlock(in_len, double_in_len,        p_dropout=0),
-            # FCBlock(double_in_len, double_in_len, p_dropout=0),
-            FCBlock(double_in_len, double_in_len, p_dropout=0),
             FCBlock(double_in_len, triple_in_len, p_dropout=0),
             FCBlock(triple_in_len, triple_in_len, p_dropout=0),
-            nn.Linear(triple_in_len, out_len),
+            FCBlock(triple_in_len, double_in_len, p_dropout=0),
+            nn.Linear(double_in_len, out_len),
         )
 
     def forward(self, x):
@@ -132,7 +130,7 @@ class DefaultModel(nn.Module):
         return x
 
 
-# In[8]:
+# In[16]:
 
 
 class FitModel():
@@ -187,7 +185,7 @@ class FitModel():
         
         mean_total_loss = np.mean(total_loss)
         self.train_losses.append(mean_total_loss)
-        print(f"Epoch: {current_epoch}/{self.num_epoches}, time: {int(time() - start_time)}s, lr = {self.scheduler.get_last_lr()}\n\tTrain loss: {mean_total_loss:.2f}")
+        print(f"Epoch: {current_epoch}/{self.num_epoches}, time: {int(time() - start_time)}s, lr = {self.scheduler.get_last_lr()}\n\tTrain loss: {mean_total_loss}")
         
     def _valid(self, current_epoch):
         total_loss = []
@@ -208,7 +206,7 @@ class FitModel():
         
         mean_total_loss = np.mean(total_loss)
         self.valid_losses.append(mean_total_loss)
-        print(f"\tValid loss: {mean_total_loss:.2f}")
+        print(f"\tValid loss: {mean_total_loss}")
     
     def fit(self):
         self.train_loader, self.valid_loader = get_train_test_small_data(scv_folder=self.p_scv_folder, dataset_name=self.train_dataset_name,
@@ -250,71 +248,71 @@ class FitModel():
         gmsd_metric = []
         images_names = listdir(p_target_images)
         for name in images_names:
-            ssim_metric.append(check_ssim(p_target_images, p_original_images, name))
-            gmsd_metric.append(check_gmsd(p_target_images, p_original_images, name))
+            ssim_metric.append(round(check_ssim(p_target_images, p_original_images, name), 3))
+            gmsd_metric.append(round(check_gmsd(p_target_images, p_original_images, name), 3))
         return ssim_metric, gmsd_metric
         # print(f"SSIM avg: {sum(ssim_metric) / len(ssim_metric)}")
         # print(f"GMSD avg: {sum(gmsd_metric) / len(gmsd_metric)}")
     
-    def check_metrics(self):
+    def check_metrics(self, verbose=False):
         if not self.images_filtered:
             print("Warning: images weren't filtered")
         metrics_after_filtering = self._check_filtering(p_test_filtered_images, p_test_images)
         metrics_befor_filtering = self._check_filtering(p_test_noised_images, p_test_images)
-        print(f"After filtering\n\tSSIM: {np.mean(metrics_after_filtering[0]):.3f}\n\tGMSD: {np.mean(metrics_after_filtering[1]):.3f}")
+        if verbose:
+            print(f"After filtering\n\tmean SSIM: {np.mean(metrics_after_filtering[0]):.3f}\n\tmean GMSD: {np.mean(metrics_after_filtering[1]):.3f}")
+            print(f"Before filtering\n\tmean SSIM: {np.mean(metrics_befor_filtering[0]):.3f}\n\tmean GMSD: {np.mean(metrics_befor_filtering[1]):.3f}")
+            
+            print(f"After filtering\n\tSSIM: {metrics_after_filtering[0]}\n\tGMSD: {metrics_after_filtering[1]}")
+            print(f"Before filtering\n\tSSIM: {metrics_befor_filtering[0]}\n\tGMSD: {metrics_befor_filtering[1]}")
+        else:
+            print(f"After filtering\n\tSSIM: {np.mean(metrics_after_filtering[0]):.3f}\n\tGMSD: {np.mean(metrics_after_filtering[1]):.3f}")
+            print(f"Before filtering\n\tSSIM: {np.mean(metrics_befor_filtering[0]):.3f}\n\tGMSD: {np.mean(metrics_befor_filtering[1]):.3f}")
         
-        print(f"Before filtering\n\tSSIM: {np.mean(metrics_befor_filtering[0]):.3f}\n\tGMSD: {np.mean(metrics_befor_filtering[1]):.3f}")
-        
-
-
-# In[9]:
-
-
-# Hyperparameters 
-learning_rate = 0.1
-num_epoches = 15
-batch_size = 1000
-
-
-# In[18]:
-
-
-model = DefaultModel(in_len=(win_size ** 2), out_len=1).to(device=device)
-criterion = nn.MSELoss()
-
-# Adagrad, RAdam, Adam, Adamax, NAdam: SSIM ~ 0.89
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-# scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
-scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10, 20], gamma=0.1)
-# scheduler = None
-
-fit_model = FitModel(model, criterion, optimizer, scheduler,
-                     p_scv_folder, train_dataset_name,
-                     batch_size, device, num_epoches,
-                     normalize_data=False)
 
 
 # In[19]:
 
 
-fit_model.fit()
+# Hyperparameters 
+learning_rate = 0.1
+num_epoches = 20
+batch_size = 1024
+normalize_data = False
+
+
+model = DefaultModel(in_len=(win_size ** 2), out_len=1).to(device=device)
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10, 15], gamma=0.1) # StepLR
+# scheduler = None
+
+fit_model = FitModel(model, criterion, optimizer, scheduler,
+                     p_scv_folder, train_dataset_name,
+                     batch_size, device, num_epoches,
+                     normalize_data)
 
 
 # In[20]:
 
 
-fit_model.plot_graph()
+fit_model.fit()
 
 
 # In[21]:
 
 
-fit_model.filtering_all_images()
+fit_model.plot_graph()
 
 
 # In[22]:
 
 
-fit_model.check_metrics()
+fit_model.filtering_all_images()
+
+
+# In[23]:
+
+
+fit_model.check_metrics(verbose=True)
 
