@@ -104,8 +104,3 @@ def add_borders(img, win_size) -> Image:
     # Add main path
     new_image.paste(img, (win_size, win_size))
     return new_image
-
-
-def get_slice_from_image(path_to_img, name, line=50):
-    img = ImageOps.grayscale(Image.open(path_to_img / name))
-    return img[line]
