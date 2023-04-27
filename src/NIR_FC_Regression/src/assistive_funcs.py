@@ -36,7 +36,7 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
     img = Image.open(path)
     shape = img.size
 
-    img = np.array(add_borders(img, win_size // 2))
+    img = np.array(add_borders(img, win_size // 2), dtype=np.float64)
     if normalize_data:
         img /= 255
 
