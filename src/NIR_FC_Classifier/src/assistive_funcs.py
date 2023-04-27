@@ -3,16 +3,14 @@ from os import listdir
 from PIL import Image, ImageOps
 import numpy as np
 from torch import Tensor, no_grad
-import torch
 import pathlib
 from tqdm import tqdm
 from image_processing import add_borders
 from skimage.metrics import structural_similarity as ssim
-# from __future__ import division
-# from scipy import ndimage
 from scipy import signal
 
-def delta_time() -> 'function':
+
+def delta_time():
     start = time()
 
     def wrapper() -> float:
@@ -30,7 +28,7 @@ def convert_to_grayscale(path_to_images) -> None:
         img.save(f"{root_folder}\gray_images\{image_name}")
 
 
-def filtering_image(model, out_path, path_to_image, image_name, win_size, device, slices=0, normalize_data=True) -> None:
+def filtering_image(model, out_path, path_to_image, image_name, win_size, device, normalize_data, classifier) -> None:
 
     out_path = out_path / image_name
     path = path_to_image / image_name
@@ -41,21 +39,25 @@ def filtering_image(model, out_path, path_to_image, image_name, win_size, device
     img = np.array(add_borders(img, win_size // 2), dtype=np.float64)
     if normalize_data:
         img /= 255
-    
+
     out_image = np.empty((shape[1], shape[0]))
 
     model.eval()
     with no_grad():
-        if slices <= 1:
-            for y in tqdm(range(shape[1])):
-                raw_res = np.empty((shape[0], win_size ** 2))
-                for x in range(shape[0]):
-                    raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
-                
-                res = Tensor(raw_res).float().to(device=device)
-                res = model(res).to("cpu").argmax(axis=-1)
-                out_image[y] = np.squeeze(np.array(res))
 
+        for y in tqdm(range(shape[1])):
+            raw_res = np.empty((shape[0], win_size ** 2))
+            for x in range(shape[0]):
+                raw_res[x] = img[y:y+win_size, x:x+win_size].flatten()
+
+            res = Tensor(raw_res).float().to(device=device)
+            res = model(res).to("cpu")
+            if classifier:
+                res = res.argmax(axis=-1)
+            out_image[y] = np.squeeze(np.array(res))
+
+        if not classifier and normalize_data:
+            out_image *= 255
         out = np.where(out_image >= 255, 255, out_image)
         out = out.astype(np.uint8)
         out = Image.fromarray(out)
@@ -125,4 +127,3 @@ def check_gmsd(filtered_images, genuine_images, image_name, rescale=True, return
     if print_metric:
         print(f"{image_name}, GMSD = {score:.3f}")
     return score
-    
