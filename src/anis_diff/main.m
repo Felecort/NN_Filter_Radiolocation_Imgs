@@ -1,4 +1,4 @@
-clear all; clc;
+clear all; clc; close all;
 
 t = 13;
 k = 0.05;
