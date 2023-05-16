@@ -20,7 +20,8 @@ FILES = dir("./original/*.jpg");
 LEN = length(FILES);
 
 ssim_quad = 0;
-ssim_exp = 0;
+%ssim_exp = 0;
+gmsd = 0;
 
 
 for i = 1:LEN
@@ -41,13 +42,15 @@ for i = 1:LEN
     %figure('Name','Noised'), imshow(noised_img);
     
     % Check SSIM
-    ssim_value_exp = ssim(original_img, filtered_exp_img);
+    %ssim_value_exp = ssim(original_img, filtered_exp_img);
     ssim_value_quad = ssim(original_img, filtered_quad_img);
+    gmsd_value = gmsdMetric(original_img, filtered_quad_img);
 
     ssim_quad = ssim_quad + ssim_value_quad;
-    ssim_exp = ssim_exp + ssim_value_exp;
-    
-    data_log = num2str(img_name) + " ssim exp: " + num2str(ssim_value_exp) + " ssim quad: " + num2str(ssim_value_quad);
+    %ssim_exp = ssim_exp + ssim_value_exp;
+    gmsd = gmsd + gmsd_value;
+        
+    data_log = num2str(img_name) + " ssim: " + num2str(ssim_value_quad) + " gmsd:" + num2str(gmsd_value);
     %ssim_sum = ssim_sum + ssim_value;
     disp(data_log);
     
@@ -60,5 +63,5 @@ end
 
 % Average ssim
 
-ssim_avg = "ssim exp avg: " + num2str(ssim_exp / LEN) + " ssim quad avg: " + num2str(ssim_quad / LEN);
-disp(ssim_avg)
+avg_metrics = " ssim avg: " + num2str(ssim_quad / LEN) + " gmsd avg: " + num2str(gmsd / LEN);
+disp(avg_metrics)
